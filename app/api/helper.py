@@ -1,13 +1,14 @@
 import os
 import pickle
 from typing import List
-
+import uuid
 from flask import jsonify, request
 from flask_jwt_extended import decode_token, get_jwt_identity
 from app.utils import get_timestamp_now
 from marshmallow import ValidationError
-from app.models import Message, UserGroupRole, User, Role, RedisModel
+from app.models import Message, UserGroupRole, User, Role, RedisModel, db
 from app.settings import ProdConfig, DevConfig, StgConfig
+from datetime import datetime, timedelta
 
 CONFIG = StgConfig
 BLOCKLIST = set()
@@ -124,42 +125,40 @@ class Token:
     def add_token_to_database(cls, encoded_token: str, user_id: str):
         decoded_token = decode_token(encoded_token)
         jti = decoded_token['jti']
-        expires = int(decoded_token['exp'] - get_timestamp_now())
+        expires = int(decoded_token['exp'])
+        add_jti = RedisModel(
+            id=str(uuid.uuid4()),
+            user_id=user_id,
+            jti=jti,
+            expires=expires,
+            encoded_token=encoded_token)
+        db.session.add(add_jti)
+        db.session.flush()
+        db.session.commit()
 
-        # tokens_jti = red.get(user_id)
-        # tokens_jti = tokens_jti.decode() + ',' + jti if tokens_jti else jti
-        # red.set(user_id, tokens_jti)
-        # red.set(jti, encoded_token, expires)
-#
-#     @classmethod
-#     def revoke_token(cls, jti):
-#         red.delete(jti)
-#
-#     @classmethod
-#     def is_token_revoked(cls, decoded_token):
-#         """
-#         Checks if the given token is revoked or not. Because we are adding all the
-#         token that we create into this database, if the token is not present
-#         in the database we are going to consider it revoked, as we don't know where
-#         it was created.
-#         """
-#         jti = decoded_token['jti']
-#         is_revoked = False
-#         if red.get(jti) is None:
-#             is_revoked = True
-#         return is_revoked
-#
-    # @classmethod
-    # def revoke_all_token(cls, user_id: str):
-    #     # tokens_jti = red.get(user_id)
-        # tokens_jti = tokens_jti.decode() if tokens_jti else ''
-        # tokens_jti = tokens_jti.split(',')
-        # for jti in tokens_jti:
-        #     red.delete(jti)
-        # red.set(user_id, '')
-#
-#     @classmethod
-#     def add_list_permission(cls, user_id: str, list_permission: List[str]):
-#         permission_user = f"permission_{user_id}"
-#         red.set(permission_user, pickle.dumps(list_permission))
+    @classmethod
+    def revoke_token(cls, jti):
+        RedisModel.query.filter(RedisModel.jti == jti).delete()
+        db.session.commit()
+
+    @classmethod
+    def is_token_revoked(cls, decoded_token):
+        """
+        Checks if the given token is revoked or not. Because we are adding all the
+        token that we create into this database, if the token is not present
+        in the database we are going to consider it revoked, as we don't know where
+        it was created.
+        """
+        jti = decoded_token['jti']
+        is_revoked = False
+        get_jti = RedisModel.query.filter(RedisModel.jti == jti, RedisModel.expires > get_timestamp_now()).first()
+        if get_jti is None:
+            is_revoked = True
+        return is_revoked
+
+    @classmethod
+    def revoke_all_token(cls, user_id: str):
+        RedisModel.query.filter(RedisModel.user_id == user_id).delete()
+        db.session.commit()
+
 

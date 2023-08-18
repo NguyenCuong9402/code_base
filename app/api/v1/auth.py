@@ -57,8 +57,7 @@ def login():
     if user is None or (password and not check_password_hash(user.password_hash, password)):
         return send_error(message='Fail')
 
-    # user_roles = get_roles_key(user)
-    user_roles = []
+    user_roles = User.roles_key
 
     # Check permission login (from user/admin side?)
     is_authorized = False
@@ -74,8 +73,6 @@ def login():
     if not user.status:
         return send_error(message='INACTIVE_ACCOUNT_ERROR')
 
-    # list_permission = get_permissions(user)
-    list_permission = []
     access_token = create_access_token(identity=user.id, expires_delta=ACCESS_EXPIRES)
     refresh_token = create_refresh_token(identity=user.id, expires_delta=REFRESH_EXPIRES)
 
@@ -119,7 +116,6 @@ def login():
 #
 #     # Store the tokens in our store with a status of not currently revoked.
 #     Token.add_token_to_database(access_token, user_identity)
-#     Token.add_list_permission(user.id, list_permission)
 #
 #     data = {
 #         'access_token': access_token
