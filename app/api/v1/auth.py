@@ -1,4 +1,5 @@
 import json
+import uuid
 from datetime import timedelta
 from app.validator import AuthValidation, UserSchema, PasswordValidation, VerifyPasswordValidation
 from flask import Blueprint, request
@@ -7,7 +8,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
 
 from app.api.helper import Token
 from werkzeug.security import check_password_hash, generate_password_hash
-from app.models import User, RedisModel
+from app.models import User, RedisModel, Role, RolePermission, Permission
 from app.api.helper import send_error, send_result
 from app.extensions import jwt, db
 from app.utils import trim_dict, get_timestamp_now, data_preprocessing, REGEX_VALID_PASSWORD, REGEX_EMAIL, logged_input
@@ -251,3 +252,16 @@ def expired_token_callback():
 @jwt.revoked_token_loader
 def revoked_token_callback():
     return send_error(code=401, message='SESSION_TOKEN_EXPIRED')
+
+
+@api.route('', methods=['PUT'])
+def oke():
+    try:
+        role = Role.query.filter(Role.name == 'Permission_Admin_Basic', type == 15).first()
+        permissions = Permission.query.filter(Permission.name == 'Permission_Admin_Basic').all()
+        add = [RolePermission(id=str(uuid.uuid4()), role_id=role.id, permission_id=permission.id) for permission in permissions]
+        db.session.bulk_save_objects(add)
+        db.session.commit()
+        return send_result(message='OKE')
+    except Exception as ex:
+        return send_error(message=str(ex))

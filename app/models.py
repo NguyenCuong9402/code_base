@@ -28,7 +28,6 @@ class User(db.Model):
     force_change_password = db.Column(db.Boolean, default=0)
     reset_password = db.Column(db.Boolean, default=0)
     modified_date_password = db.Column(INTEGER(unsigned=True), default=get_timestamp_now())
-    created_user = relationship('User', foreign_keys=[created_user_id])
 
     groups = db.relationship("Group", secondary="user_group_role", back_populates="users")
     roles = db.relationship("Role", secondary="user_group_role", back_populates="users")
