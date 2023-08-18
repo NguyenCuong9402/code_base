@@ -124,7 +124,7 @@ class Permission(db.Model):
 
     id = db.Column(db.String(50), primary_key=True)
     key = db.Column(db.String(100), nullable=False)
-    name = db.Column(db.String(100), nullable=False, unique=False)
+    name = db.Column(db.String(100), nullable=False)
     resource = db.Column(db.String(100), nullable=False, unique=True)
     roles = db.relationship("Role", back_populates="permissions", secondary="role_permission")
 
