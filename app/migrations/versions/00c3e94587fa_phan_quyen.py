@@ -53,8 +53,8 @@ def upgrade():
     sa.Column('created_user_id', sa.String(length=50), nullable=True),
     sa.Column('last_modified_user_id', sa.String(length=50), nullable=True),
     sa.Column('force_change_password', sa.Boolean(), nullable=True),
-    sa.ForeignKeyConstraint(['created_user_id'], ['user.id'], onupdate='CASCADE', ondelete='SET NULL'),
-    sa.ForeignKeyConstraint(['last_modified_user_id'], ['user.id'], onupdate='CASCADE', ondelete='SET NULL'),
+    sa.Column('created_user_id', sa.String(length=50), nullable=True),
+    sa.Column('last_modified_user_id', sa.String(length=50), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_user_created_date'), 'user', ['created_date'], unique=False)
