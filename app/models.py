@@ -26,6 +26,8 @@ class User(db.Model):
                                 index=True)
     last_modified_user_id = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'), nullable=True,
                                       index=True)
+    force_change_password = db.Column(db.Boolean, default=0)
+
     created_user = relationship('User', foreign_keys=[created_user_id])
 
     groups = db.relationship("Group", secondary="user_group_role", back_populates="users")

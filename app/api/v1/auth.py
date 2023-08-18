@@ -57,15 +57,13 @@ def login():
     if user is None or (password and not check_password_hash(user.password_hash, password)):
         return send_error(message='Fail')
 
-    user_roles = User.roles_key
-
     # Check permission login (from user/admin side?)
     is_authorized = False
     if is_admin:
-        if 'Permission_Admin_Basic' in user_roles:
+        if 'Permission_Admin_Basic' in User.roles_key:
             is_authorized = True
     else:
-        if 'Permission_User_Basic' in user_roles:
+        if 'Permission_User_Basic' in User.roles_key:
             is_authorized = True
     if not is_authorized:
         return send_error(message='YOU_DO_NOT_HAVE_PERMISSION')
@@ -87,78 +85,77 @@ def login():
     return send_result(data=data)
 
 
-# @api.route('/refresh', methods=['POST'])
-# @jwt_refresh_token_required
-# def refresh():
-#     """
-#     This api use for refresh expire time of the access token. Please inject the refresh token in Authorization header
-#
-#     Requests Body:
-#
-#         refresh_token: string,require
-#         The refresh token return to the login API
-#
-#     Returns:
-#
-#         access_token: string
-#         A new access_token
-#
-#     Examples::
-#
-#     """
-#
-#     user_identity = get_jwt_identity()
-#     user = User.get_by_id(user_identity)
-#
-#     list_permission = get_permissions(user)
-#     access_token = create_access_token(identity=user.id, expires_delta=ACCESS_EXPIRES,
-#                                        user_claims={"force_change_password": user.force_change_password})
-#
-#     # Store the tokens in our store with a status of not currently revoked.
-#     Token.add_token_to_database(access_token, user_identity)
-#
-#     data = {
-#         'access_token': access_token
-#     }
-#
-#     return send_result(data=data)
+@api.route('/refresh', methods=['POST'])
+@jwt_refresh_token_required
+def refresh():
+    """
+    This api use for refresh expire time of the access token. Please inject the refresh token in Authorization header
+
+    Requests Body:
+
+        refresh_token: string,require
+        The refresh token return to the login API
+
+    Returns:
+
+        access_token: string
+        A new access_token
+
+    Examples::
+
+    """
+
+    user_identity = get_jwt_identity()
+    user = User.get_by_id(user_identity)
+
+    access_token = create_access_token(identity=user.id, expires_delta=ACCESS_EXPIRES,
+                                       user_claims={"force_change_password": user.force_change_password})
+
+    # Store the tokens in our store with a status of not currently revoked.
+    Token.add_token_to_database(access_token, user_identity)
+
+    data = {
+        'access_token': access_token
+    }
+
+    return send_result(data=data)
 
 
-# @api.route('/logout', methods=['DELETE'])
-# @jwt_required
-# def logout():
-#     """
-#     This api logout current user, revoke current access token
-#
-#     Examples::
-#
-#     """
-#
-#     jti = get_raw_jwt()['jti']
-#     Token.revoke_token(jti)  # revoke current token from database
-#
-#     return send_result(message="Logout successfully!")
-#
-#
-# @jwt.token_in_blacklist_loader
-# def check_if_token_is_revoked(decrypted_token):
-#     """
-#     :param decrypted_token:
-#     :return:
-#     """
-#     return Token.is_token_revoked(decrypted_token)
-#
-#
-# @jwt.expired_token_loader
-# def expired_token_callback():
-#     """
-#     The following callbacks are used for customizing jwt response/error messages.
-#     The original ones may not be in a very pretty format (opinionated)
-#     :return:
-#     """
-#     return send_error(code=401,message='SESSION_TOKEN_EXPIRED')
-#
-#
-# @jwt.revoked_token_loader
-# def revoked_token_callback():
-#     return send_error(code=401, message='SESSION_TOKEN_EXPIRED')
+@api.route('/logout', methods=['DELETE'])
+@jwt_required
+def logout():
+    """
+    This api logout current user, revoke current access token
+
+    Examples::
+
+    """
+
+    jti = get_raw_jwt()['jti']
+    Token.revoke_token(jti)  # revoke current token from database
+
+    return send_result(message="Logout successfully!")
+
+
+@jwt.token_in_blacklist_loader
+def check_if_token_is_revoked(decrypted_token):
+    """
+    :param decrypted_token:
+    :return:
+    """
+    return Token.is_token_revoked(decrypted_token)
+
+
+@jwt.expired_token_loader
+def expired_token_callback():
+    """
+    The following callbacks are used for customizing jwt response/error messages.
+    The original ones may not be in a very pretty format (opinionated)
+    :return:
+    """
+    return send_error(code=401, message='SESSION_TOKEN_EXPIRED')
+
+
+@jwt.revoked_token_loader
+def revoked_token_callback():
+    return send_error(code=401, message='SESSION_TOKEN_EXPIRED')

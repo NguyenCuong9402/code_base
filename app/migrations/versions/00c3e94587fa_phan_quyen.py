@@ -1,8 +1,8 @@
 """phan_quyen
 
-Revision ID: f0684cc0e2dc
+Revision ID: 00c3e94587fa
 Revises: 
-Create Date: 2023-08-18 10:36:20.839632
+Create Date: 2023-08-18 14:12:48.922113
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = 'f0684cc0e2dc'
+revision = '00c3e94587fa'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -52,6 +52,7 @@ def upgrade():
     sa.Column('status', sa.Boolean(), nullable=True),
     sa.Column('created_user_id', sa.String(length=50), nullable=True),
     sa.Column('last_modified_user_id', sa.String(length=50), nullable=True),
+    sa.Column('force_change_password', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['created_user_id'], ['user.id'], onupdate='CASCADE', ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['last_modified_user_id'], ['user.id'], onupdate='CASCADE', ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
@@ -75,6 +76,15 @@ def upgrade():
     sa.UniqueConstraint('name')
     )
     op.create_index(op.f('ix_group_created_date'), 'group', ['created_date'], unique=False)
+    op.create_table('redis',
+    sa.Column('id', sa.String(length=50), nullable=False),
+    sa.Column('user_id', sa.String(length=50), nullable=False),
+    sa.Column('jti', sa.String(length=200), nullable=True),
+    sa.Column('encoded_token', sa.String(length=200), nullable=True),
+    sa.Column('expires', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id', 'user_id')
+    )
     op.create_table('role',
     sa.Column('id', sa.String(length=50), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
@@ -130,6 +140,7 @@ def downgrade():
     op.drop_index(op.f('ix_user_setting_created_date'), table_name='user_setting')
     op.drop_table('user_setting')
     op.drop_table('role')
+    op.drop_table('redis')
     op.drop_index(op.f('ix_group_created_date'), table_name='group')
     op.drop_table('group')
     op.drop_index(op.f('ix_user_last_modified_user_id'), table_name='user')
