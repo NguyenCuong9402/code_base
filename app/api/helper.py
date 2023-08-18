@@ -6,54 +6,11 @@ from flask import jsonify, request
 from flask_jwt_extended import decode_token, get_jwt_identity
 from app.utils import get_timestamp_now
 from marshmallow import ValidationError
-from sqlalchemy import func, distinct
-from app.models import Message
+from app.models import Message, UserGroupRole, User, Role
 from app.settings import ProdConfig, DevConfig, StgConfig
-
 
 CONFIG = StgConfig
 BLOCKLIST = set()
-
-
-# def get_permissions(user: User):
-#     """
-#     get all permission of user login
-#     Args:
-#         user:
-#
-#     Returns:
-#         permissions:
-#     """
-#     permissions = []
-#     group_id = user.group_id
-#     list_role = GroupRole.query.filter(GroupRole.group_id == group_id).all()
-#     for group_role in list_role:
-#         list_permission = RolePermission.query.filter(RolePermission.role_id == group_role.role_id).all()
-#         for role_permission in list_permission:
-#             if role_permission.permission.resource not in permissions:
-#                 permissions.append(role_permission.permission.resource)
-#
-#     return permissions
-#
-#
-# def get_roles_key(user: User) -> List[Role]:
-#     """
-#     get all roles of user login
-#     Args:
-#         user:
-#
-#     Returns:
-#         roles:
-#     """
-#     roles_key = []
-#     group_id = user.group_id
-#     list_role = GroupRole.query.filter(GroupRole.group_id == group_id).all()
-#     for group_role in list_role:
-#         role = Role.query.filter(Role.id == group_role.role_id).first()
-#         if role.key not in roles_key:
-#             roles_key.append(role.key)
-#
-#     return roles_key
 
 
 def send_result(data: any = None, message_id: str = '', message: str = "OK", code: int = 200,

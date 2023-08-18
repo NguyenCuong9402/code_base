@@ -2,6 +2,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from app.extensions import db
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import func, distinct
 
 
 class User(db.Model):
@@ -17,11 +18,15 @@ class User(db.Model):
     roles = db.relationship("Role", secondary="user_group_role", back_populates="users")
 
     @hybrid_property
-    def permission(self):
-        return get_list_permission(self.id)
+    def permission_resources(self):
+        return get_permission_resource(self.id)
+
+    @hybrid_property
+    def roles_key(self):
+        return get_roles_key(self.id)
 
 
-def get_list_permission(user_id):
+def get_permission_resource(user_id):
     query = UserGroupRole.query.filter(UserGroupRole.user_id == user_id)
     query_role = query.filter(UserGroupRole.group_id.is_(None)).with_entities(UserGroupRole.role_id).all()
     list_role = [item.role_id for item in query_role]
@@ -34,6 +39,20 @@ def get_list_permission(user_id):
         filter(RolePermission.role_id.in_(list_role)).all()
     list_permission = [resource[0] for resource in resources]
     return list_permission
+
+
+def get_roles_key(user_id: str):
+    query = UserGroupRole.query.filter(UserGroupRole.user_id == user_id)
+    query_role = query.filter(UserGroupRole.group_id.is_(None)).with_entities(UserGroupRole.role_id).all()
+    list_role = [item.role_id for item in query_role]
+    group_ids = query.filter(UserGroupRole.role_id.is_(None)).with_entities(UserGroupRole.group_id).subquery()
+    group_role = UserGroupRole.query.filter(UserGroupRole.user_id.is_(None),
+                                            UserGroupRole.group_id.in_(group_ids)) \
+        .with_entities(UserGroupRole.role_id).all()
+    list_role += [item.role_id for item in group_role if item.role_id not in list_role]
+    keys = db.session.query(distinct(Role.key)).filter(Role.id.in_(list_role)).all()
+    key_list = [key[0] for key in keys]
+    return key_list
 
 
 class Group(db.Model):

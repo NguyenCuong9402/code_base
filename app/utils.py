@@ -39,3 +39,21 @@ def trim_dict(input_dict: dict) -> dict:
         else:
             new_dict[key] = value
     return new_dict
+
+
+# Regex validate
+RE_ONLY_NUMBERS = r'^(\d+)$'
+RE_ONLY_CHARACTERS = r'^[a-zA-Z]+$'
+RE_ONLY_NUMBER_AND_DASH = r'^[-\d]+$'
+RE_ONLY_LETTERS_NUMBERS_PLUS = r'^[+A-Za-z0-9]+$'
+REGEX_EMAIL = r'^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,' \
+              r';:\s@\"]{2,})$'
+REGEX_PHONE_NUMBER = r'^\+?[1-9]|^[0-9]{0,20}$'
+REGEX_OTP = r'[0-9]{6}'
+REGEX_FULLNAME_VIETNAMESE = r"([^0-9`~!@#$%^&*(),.?'\":;{}+=|<>_\-\\\/\[\]]+)$"
+REGEX_URL = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<" \
+             r">]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
+
+REGEX_ADDRESS_VIETNAMESE = r"([^`~!@#$%^&*().?'\":;{}+=|<>_\-\\\[\]]+)$"
+REGEX_VALID_PASSWORD = r'^(?=.*[0-9])(?=.*[a-zA-Z])(?!.* ).{8,16}$'
+secret_key_serpapi = "13b70e23408306d0e6f4b1f7e59b6fc3643128c415e9696a6502102d5166cf59"
