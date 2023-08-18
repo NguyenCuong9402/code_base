@@ -6,7 +6,7 @@ from flask import jsonify, request
 from flask_jwt_extended import decode_token, get_jwt_identity
 from app.utils import get_timestamp_now
 from marshmallow import ValidationError
-from app.models import Message, UserGroupRole, User, Role
+from app.models import Message, UserGroupRole, User, Role, RedisModel
 from app.settings import ProdConfig, DevConfig, StgConfig
 
 CONFIG = StgConfig
@@ -125,11 +125,11 @@ class Token:
         decoded_token = decode_token(encoded_token)
         jti = decoded_token['jti']
         expires = int(decoded_token['exp'] - get_timestamp_now())
-#
-#         tokens_jti = red.get(user_id)
-#         tokens_jti = tokens_jti.decode() + ',' + jti if tokens_jti else jti
-#         red.set(user_id, tokens_jti)
-#         red.set(jti, encoded_token, expires)
+
+        # tokens_jti = red.get(user_id)
+        # tokens_jti = tokens_jti.decode() + ',' + jti if tokens_jti else jti
+        # red.set(user_id, tokens_jti)
+        # red.set(jti, encoded_token, expires)
 #
 #     @classmethod
 #     def revoke_token(cls, jti):
@@ -149,14 +149,14 @@ class Token:
 #             is_revoked = True
 #         return is_revoked
 #
-#     @classmethod
-#     def revoke_all_token(cls, user_id: str):
-#         tokens_jti = red.get(user_id)
-#         tokens_jti = tokens_jti.decode() if tokens_jti else ''
-#         tokens_jti = tokens_jti.split(',')
-#         for jti in tokens_jti:
-#             red.delete(jti)
-#         red.set(user_id, '')
+    # @classmethod
+    # def revoke_all_token(cls, user_id: str):
+    #     # tokens_jti = red.get(user_id)
+        # tokens_jti = tokens_jti.decode() if tokens_jti else ''
+        # tokens_jti = tokens_jti.split(',')
+        # for jti in tokens_jti:
+        #     red.delete(jti)
+        # red.set(user_id, '')
 #
 #     @classmethod
 #     def add_list_permission(cls, user_id: str, list_permission: List[str]):

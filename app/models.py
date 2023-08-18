@@ -149,6 +149,15 @@ class UserGroupRole(db.Model):
                         primary_key=True)
 
 
+class RedisModel(db.Model):
+    __tablename__ = 'redis'
+    id = db.Column(db.String(50), primary_key=True)
+    user_id = db.Column(db.String(50), db.ForeignKey('user.id'), primary_key=True, nullable=False)
+    jti = db.Column(db.String(200))
+    encoded_token = db.Column(db.String(200))
+    expires = db.Column(db.Integer)
+
+
 class Message(db.Model):
     __tablename__ = 'message'
 
