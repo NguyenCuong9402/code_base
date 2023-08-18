@@ -1,6 +1,6 @@
 import json
 from datetime import timedelta
-from app.validator import AuthValidation, UserSchema, PasswordValidation
+from app.validator import AuthValidation, UserSchema, PasswordValidation, VerifyPasswordValidation
 from flask import Blueprint, request
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 get_jwt_identity, get_raw_jwt, jwt_refresh_token_required, jwt_required)
@@ -217,6 +217,7 @@ def verify_password():
         return send_error(message='INCORRECT_PASSWORD')
 
     return send_result(data={})
+
 
 @api.route('/auto-remove-redis', methods=['DELETE'])
 def remove_redis():
