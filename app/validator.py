@@ -45,6 +45,24 @@ class BaseValidation(Schema):
         return True, ''
 
 
+class GetUserValidation(BaseValidation):
+    """
+    Author: TienNguyen
+    Create Date: 24/01/2022
+    Marshmallow Schema
+    Target: validate parameters of introduction
+    """
+    page = fields.Integer(required=False)
+    page_size = fields.Integer(required=False)
+    search_name = fields.String(required=False, validate=validate.Length(min=0, max=200))
+    status = fields.Integer(required=False, validate=validate.OneOf([0, 1]))
+    sort = fields.String(required=False,
+                         validate=validate.OneOf(
+                             ["full_name", "email", "modified_date", "created_date", "created_user",
+                              "status"]))
+    order_by = fields.String(required=False, validate=validate.OneOf(["asc", "desc"]))
+
+
 class AuthValidation(BaseValidation):
     """
     Validator auth

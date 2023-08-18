@@ -5,7 +5,7 @@ from flask import request
 from flask_jwt_extended import (
     verify_jwt_in_request, get_jwt_claims, get_jwt_identity
 )
-from models import get_permission_resource
+from app.models import get_permission_resource
 from app.api.helper import send_error
 
 

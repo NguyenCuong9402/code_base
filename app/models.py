@@ -24,11 +24,12 @@ class User(db.Model):
     status = db.Column(db.Boolean, default=1)  # 1: Kích hoạt, 0: Không kích hoạt
     created_user_id = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'), nullable=True,
                                 index=True)
+    modified_date = db.Column(INTEGER(unsigned=True), default=0)
     last_modified_user_id = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'), nullable=True,
                                       index=True)
     force_change_password = db.Column(db.Boolean, default=0)
     reset_password = db.Column(db.Boolean, default=0)
-
+    modified_date_password = db.Column(INTEGER(unsigned=True), default=get_timestamp_now())
     created_user = relationship('User', foreign_keys=[created_user_id])
 
     groups = db.relationship("Group", secondary="user_group_role", back_populates="users")

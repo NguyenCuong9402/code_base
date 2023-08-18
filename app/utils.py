@@ -1,5 +1,9 @@
-from time import time
+from time import time, strftime
+
+from .enums import TIME_FORMAT_LOG
 from .extensions import logger
+import urllib.parse
+from flask import request
 
 
 def get_timestamp_now():
@@ -37,6 +41,37 @@ def logged_input(json_req: str) -> None:
                 request.scheme,
                 request.full_path,
                 json_req)
+
+
+def normalize_search_input(search_name: str):
+    """ normalize input string in utf-8
+
+    Args:
+        search_name: string
+
+    Returns:
+
+    """
+    search_name = urllib.parse.unquote(search_name, encoding='utf-8', errors='replace') if search_name else None
+    if search_name:
+        search_name = search_name.strip()
+        search_name = escape_wildcard(search_name)
+    return search_name
+
+
+def escape_wildcard(search):
+    """
+    :param search:
+    :return:
+    """
+    search1 = str.replace(search, '\\', r'\\')
+    search2 = str.replace(search1, r'%', r'\%')
+    search3 = str.replace(search2, r'_', r'\_')
+    search4 = str.replace(search3, r'[', r'\[')
+    search5 = str.replace(search4, r'"', r'\"')
+    search6 = str.replace(search5, r"'", r"\'")
+    return search6
+
 
 def trim_dict(input_dict: dict) -> dict:
     """
