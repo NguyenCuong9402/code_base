@@ -97,8 +97,7 @@ def upgrade():
     sa.Column('created_user', sa.String(length=50), nullable=True),
     sa.ForeignKeyConstraint(['created_user'], ['user.id'], onupdate='CASCADE', ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['last_modified_user'], ['user.id'], onupdate='CASCADE', ondelete='SET NULL'),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('name')
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('user_setting',
     sa.Column('id', sa.String(length=50), nullable=False),

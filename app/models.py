@@ -103,7 +103,7 @@ class Role(db.Model):
     __tablename__ = 'role'
 
     id = db.Column(db.String(50), primary_key=True)
-    name = db.Column(db.String(100), nullable=False, unique=True)
+    name = db.Column(db.String(100), nullable=False)
     key = db.Column(db.String(100), nullable=False)
     type = db.Column(db.Integer, default=0)
     description = db.Column(db.String(500))
