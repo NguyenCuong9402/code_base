@@ -1,16 +1,17 @@
 import json
 from datetime import timedelta
-from app.validator import AuthValidation, UserSchema
+from app.validator import AuthValidation, UserSchema, PasswordValidation
 from flask import Blueprint, request
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 get_jwt_identity, get_raw_jwt, jwt_refresh_token_required, jwt_required)
 
 from app.api.helper import Token
-from werkzeug.security import check_password_hash
-from app.models import User
+from werkzeug.security import check_password_hash, generate_password_hash
+from app.models import User, RedisModel
 from app.api.helper import send_error, send_result
 from app.extensions import jwt, db
-from app.utils import trim_dict, get_timestamp_now, data_preprocessing, REGEX_VALID_PASSWORD, REGEX_EMAIL
+from app.utils import trim_dict, get_timestamp_now, data_preprocessing, REGEX_VALID_PASSWORD, REGEX_EMAIL, logged_input
+from app.gateway import authorization_require
 
 api = Blueprint('auth', __name__)
 ACCESS_EXPIRES = timedelta(days=1)
@@ -135,6 +136,96 @@ def logout():
     Token.revoke_token(jti)  # revoke current token from database
 
     return send_result(message="Logout successfully!")
+
+
+@api.route('/init', methods=['POST'])
+@jwt_required
+def change_password_default():
+    """
+    This is controller of the login api
+
+    Requests Body:
+            password: string, require
+    EX:
+        {
+            "password": "admin@1234"
+        }
+    """
+
+    try:
+        json_req = request.get_json()
+    except Exception as ex:
+        return send_error(message="Request Body incorrect json format: " + str(ex), code=442)
+
+    # trim input body
+    json_body = trim_dict(json_req)
+
+    # validate request body
+    validator_input = PasswordValidation()
+    is_not_validate = validator_input.validate(json_body)
+    if is_not_validate:
+        return send_error(data=is_not_validate, message='INVALID_PASSWORD')
+
+    password = json_body.get("password")
+    is_admin = json_body.get("is_admin")
+
+    user = User.get_current_user()
+    if user is None:
+        return send_error(message='NOT_FOUND_ERROR')
+    user.reset_password = 1  # Flag reset password
+    user.password_hash = generate_password_hash(password)
+    user.modified_date_password = get_timestamp_now()
+    user.modified_date = get_timestamp_now()
+    user.force_change_password = False
+    db.session.commit()
+
+    message = 'CHANGE_DEFAULT_PASS_SUCCESS' if is_admin else 'CHANGE_DEFAULT_PASS_SUCCESS_USER_SITE'
+
+    return send_result(data=UserSchema().dump(user), message=message)
+
+
+@api.route('/verify', methods=['POST'])
+@authorization_require()
+def verify_password():
+    """ This api for all user change their password.
+
+        Request Body:
+
+        Returns:
+
+        Examples::
+
+    """
+    current_user = User.get_current_user()
+    try:
+        json_req = request.get_json()
+    except Exception as ex:
+        return send_error(message="Request Body incorrect json format: " + str(ex), code=442)
+
+    # logged input fields
+    logged_input(json.dumps(json_req))
+
+    # validate request body
+    validator_input = VerifyPasswordValidation()
+    is_not_validate = validator_input.validate(json_req)
+    if is_not_validate:
+        return send_error(data=is_not_validate, message='INVALID_PASSWORD')
+
+    current_password = json_req.get("current_password")
+
+    if not check_password_hash(current_user.password_hash, current_password):
+        return send_error(message='INCORRECT_PASSWORD')
+
+    return send_result(data={})
+
+@api.route('/auto-remove-redis', methods=['DELETE'])
+def remove_redis():
+    try:
+        RedisModel.query.filter(RedisModel.expires < get_timestamp_now()).delete()
+        db.session.commit()
+        return send_result(message='Done')
+    except Exception as ex:
+        return send_error(message=str(ex))
 
 
 @jwt.token_in_blacklist_loader

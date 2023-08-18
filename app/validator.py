@@ -69,6 +69,35 @@ class AuthValidation(BaseValidation):
     }
 
 
+class VerifyPasswordValidation(Schema):
+    """
+    Validator
+    :param
+        current_password: string, required
+    Ex:
+    {
+        "current_password": "12345678A?a"
+    }
+    """
+    current_password = fields.String(required=True,
+                                     validate=[validate.Length(min=1, max=16), validate.Regexp(REGEX_VALID_PASSWORD)])
+
+
+class PasswordValidation(Schema):
+    """
+    Validator
+    :param
+        password: string, required
+    Ex:
+    {
+        "password": "Admin@1234"
+    }
+    """
+    password = fields.String(required=True,
+                             validate=[validate.Length(min=1, max=16), validate.Regexp(REGEX_VALID_PASSWORD)])
+    is_admin = fields.Boolean(required=True)
+
+
 class UserParentSchema(Schema):
     id = fields.String()
     email = fields.String()

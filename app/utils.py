@@ -1,4 +1,5 @@
 from time import time
+from .extensions import logger
 
 
 def get_timestamp_now():
@@ -21,6 +22,21 @@ def data_preprocessing(cls_validator, input_json: dict):
             input_json[key] = value.strip()
     return cls_validator().custom_validate(input_json)
 
+
+def logged_input(json_req: str) -> None:
+    """
+    Logged input fields
+    :param json_req:
+    :return:
+    """
+
+    logger.info('%s %s %s %s %s INPUT FIELDS: %s',
+                strftime(TIME_FORMAT_LOG),
+                request.remote_addr,
+                request.method,
+                request.scheme,
+                request.full_path,
+                json_req)
 
 def trim_dict(input_dict: dict) -> dict:
     """
