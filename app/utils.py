@@ -1,4 +1,6 @@
 from time import time, strftime
+import string
+import random
 
 from .enums import TIME_FORMAT_LOG
 from .extensions import logger
@@ -25,6 +27,17 @@ def data_preprocessing(cls_validator, input_json: dict):
         if isinstance(value, str):
             input_json[key] = value.strip()
     return cls_validator().custom_validate(input_json)
+
+
+def generate_password():
+    """
+    :return: random password
+    """
+    symbol_list = ["@", "$", "!", "%", "*", "?", "&"]
+    number = '0123456789'
+    letters_and_digits = string.ascii_letters + string.digits
+    result_str = ''.join(random.choices(letters_and_digits, k=6))
+    return '{}{}{}'.format(result_str, random.choice(symbol_list), random.choice(number))
 
 
 def logged_input(json_req: str) -> None:

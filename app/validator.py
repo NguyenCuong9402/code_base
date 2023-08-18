@@ -3,7 +3,7 @@ import typing
 from datetime import date
 from app.enums import INVALID_PARAMETERS_ERROR
 from marshmallow import Schema, fields, validate, ValidationError, types, validates_schema, post_dump
-from app.utils import REGEX_EMAIL, REGEX_VALID_PASSWORD
+from app.utils import REGEX_EMAIL, REGEX_VALID_PASSWORD, REGEX_FULLNAME_VIETNAMESE
 
 
 class BaseValidation(Schema):
@@ -61,6 +61,15 @@ class GetUserValidation(BaseValidation):
                              ["full_name", "email", "modified_date", "created_date", "created_user",
                               "status"]))
     order_by = fields.String(required=False, validate=validate.OneOf(["asc", "desc"]))
+
+
+class UserValidation(BaseValidation):
+    full_name = fields.String(required=True,
+                              validate=[validate.Length(min=1, max=50), validate.Regexp(REGEX_FULLNAME_VIETNAMESE)])
+    email = fields.String(required=True, validate=[validate.Length(min=3, max=50), validate.Regexp(REGEX_EMAIL)])
+    status = fields.Boolean(required=True)
+    group_ids = fields.List(fields.String(validate=validate.Length(max=50)))
+    role_ids = fields.List(fields.String(validate=validate.Length(max=50)))
 
 
 class AuthValidation(BaseValidation):

@@ -18,13 +18,13 @@ class User(db.Model):
     type = db.Column(db.SmallInteger, default=1)  # 1: normal user, 2: admin, 3 super admin
     birthday = db.Column(db.DATE)
     address = db.Column(db.Text)  # Tỉnh, thành của user (FE tự convert)
-    created_date = db.Column(INTEGER(unsigned=True), default=get_timestamp_now(), index=True)
     avatar_url = db.Column(db.String(255))
     is_active = db.Column(db.Boolean, default=1)  # 1: Mở tài khoản , 0: Khóa tài khoản
     status = db.Column(db.Boolean, default=1)  # 1: Kích hoạt, 0: Không kích hoạt
+    created_date = db.Column(INTEGER(unsigned=True), default=get_timestamp_now(), index=True)
+    modified_date = db.Column(INTEGER(unsigned=True), default=0)
     created_user_id = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'), nullable=True,
                                 index=True)
-    modified_date = db.Column(INTEGER(unsigned=True), default=0)
     last_modified_user_id = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'), nullable=True,
                                       index=True)
     force_change_password = db.Column(db.Boolean, default=0)
