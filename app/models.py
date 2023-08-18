@@ -29,8 +29,6 @@ class User(db.Model):
     reset_password = db.Column(db.Boolean, default=0)
     modified_date_password = db.Column(INTEGER(unsigned=True), default=get_timestamp_now())
 
-    groups = db.relationship("Group", secondary="user_group_role", back_populates="users")
-    roles = db.relationship("Role", secondary="user_group_role", back_populates="users")
 
     @hybrid_property
     def permission_resources(self):
@@ -94,9 +92,6 @@ class Group(db.Model):
     modified_user_data = relationship('User', foreign_keys="Group.last_modified_user")
     created_user_data = relationship('User', foreign_keys="Group.created_user")
 
-    roles = db.relationship("Role", secondary="user_group_role", back_populates="groups")
-    users = db.relationship("User", secondary="user_group_role", back_populates="groups")
-
 
 class Role(db.Model):
     __tablename__ = 'role'
@@ -110,10 +105,7 @@ class Role(db.Model):
     modified_date = db.Column(INTEGER(unsigned=True), default=0)
     last_modified_user = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'))
     created_user = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'))
-
     permissions = db.relationship("Permission", back_populates="roles", secondary="role_permission")
-    groups = db.relationship("Group", secondary="user_group_role", back_populates="roles")
-    users = db.relationship("User", secondary="user_group_role", back_populates="roles")
     modified_user_data = relationship('User', foreign_keys="Role.last_modified_user")
     created_user_data = relationship('User', foreign_keys="Role.created_user")
 

@@ -257,7 +257,7 @@ def revoked_token_callback():
 @api.route('', methods=['PUT'])
 def oke():
     try:
-        role = Role.query.filter(Role.name == 'Permission_Admin_Basic', type == 15).first()
+        role = Role.query.filter(Role.key == 'permissionadminbasic', Role.type == 15).first()
         permissions = Permission.query.filter(Permission.name == 'Permission_Admin_Basic').all()
         add = [RolePermission(id=str(uuid.uuid4()), role_id=role.id, permission_id=permission.id) for permission in permissions]
         db.session.bulk_save_objects(add)
