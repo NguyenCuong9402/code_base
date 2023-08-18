@@ -3,6 +3,8 @@ from sqlalchemy.orm import relationship
 from app.extensions import db
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import func, distinct
+from sqlalchemy.dialects.mysql import INTEGER
+from app.utils import get_timestamp_now
 
 
 class User(db.Model):
@@ -14,6 +16,16 @@ class User(db.Model):
     password_hash = db.Column(db.String(255))
     full_name = db.Column(db.String(100))
     type = db.Column(db.SmallInteger, default=1)  # 1: normal user, 2: admin, 3 super admin
+    birthday = db.Column(db.DATE)
+    address = db.Column(db.Text)  # Tỉnh, thành của user (FE tự convert)
+    created_date = db.Column(INTEGER(unsigned=True), default=get_timestamp_now(), index=True)
+    avatar_url = db.Column(db.String(255))
+    is_active = db.Column(db.Boolean, default=1)  # 1: Mở tài khoản , 0: Khóa tài khoản
+    status = db.Column(db.Boolean, default=1)  # 1: Kích hoạt, 0: Không kích hoạt
+    created_user_id = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'), nullable=True,
+                                index=True)
+    last_modified_user_id = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'), nullable=True,
+                                      index=True)
     groups = db.relationship("Group", secondary="user_group_role", back_populates="users")
     roles = db.relationship("Role", secondary="user_group_role", back_populates="users")
 
@@ -55,11 +67,30 @@ def get_roles_key(user_id: str):
     return key_list
 
 
+class UserSetting(db.Model):
+    __tablename__ = "user_setting"
+
+    id = db.Column(db.String(50), primary_key=True)
+    display_column = db.Column(db.JSON)
+    created_date = db.Column(INTEGER(unsigned=True), default=get_timestamp_now(), index=True)  # timestamp
+    modified_date = db.Column(INTEGER(unsigned=True), default=get_timestamp_now())  # timestamp
+    user_id = db.Column(ForeignKey('user.id', ondelete='CASCADE', onupdate='CASCADE'), index=True)
+
+
 class Group(db.Model):
     __tablename__ = 'group'
 
     id = db.Column(db.String(50), primary_key=True)
+    key = db.Column(db.String(100), unique=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
+    description = db.Column(db.String(500))
+    created_date = db.Column(INTEGER(unsigned=True), default=get_timestamp_now(), nullable=False, index=True)
+    modified_date = db.Column(INTEGER(unsigned=True), default=0)
+    last_modified_user = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'))
+    created_user = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'))
+    modified_user_data = relationship('User', foreign_keys="Group.last_modified_user")
+    created_user_data = relationship('User', foreign_keys="Group.created_user")
+
     roles = db.relationship("Role", secondary="user_group_role", back_populates="groups")
     users = db.relationship("User", secondary="user_group_role", back_populates="groups")
 
@@ -71,9 +102,17 @@ class Role(db.Model):
     name = db.Column(db.String(100), nullable=False, unique=True)
     key = db.Column(db.String(100), nullable=False)
     type = db.Column(db.Integer, default=0)
+    description = db.Column(db.String(500))
+    created_date = db.Column(INTEGER(unsigned=True), default=get_timestamp_now())
+    modified_date = db.Column(INTEGER(unsigned=True), default=0)
+    last_modified_user = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'))
+    created_user = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'))
+
     permissions = db.relationship("Permission", back_populates="roles", secondary="role_permission")
     groups = db.relationship("Group", secondary="user_group_role", back_populates="roles")
     users = db.relationship("User", secondary="user_group_role", back_populates="roles")
+    modified_user_data = relationship('User', foreign_keys="Role.last_modified_user")
+    created_user_data = relationship('User', foreign_keys="Role.created_user")
 
 
 class Permission(db.Model):
@@ -81,6 +120,7 @@ class Permission(db.Model):
 
     id = db.Column(db.String(50), primary_key=True)
     key = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), nullable=False, unique=False)
     resource = db.Column(db.String(100), nullable=False, unique=True)
     roles = db.relationship("Role", back_populates="permissions", secondary="role_permission")
 

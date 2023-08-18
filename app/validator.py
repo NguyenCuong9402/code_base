@@ -3,6 +3,7 @@ import typing
 from datetime import date
 from enums import INVALID_PARAMETERS_ERROR
 from marshmallow import Schema, fields, validate, ValidationError, types, validates_schema, post_dump
+from utils import REGEX_EMAIL, REGEX_VALID_PASSWORD
 
 
 class BaseValidation(Schema):
@@ -66,3 +67,17 @@ class AuthValidation(BaseValidation):
     define_message = {
         "email": "001"
     }
+
+
+class UserSchema(Schema):
+    id = fields.String()
+    email = fields.String()
+    phone = fields.String()
+    full_name = fields.String()
+    address = fields.String()
+    avatar_url = fields.String()
+    date_of_birth = fields.String()
+    created_date = fields.Number()
+    modified_date = fields.Number()
+    type = fields.Number()
+    created_user_id = fields.String()
