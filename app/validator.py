@@ -69,15 +69,29 @@ class AuthValidation(BaseValidation):
     }
 
 
+class UserParentSchema(Schema):
+    id = fields.String()
+    email = fields.String()
+    phone = fields.String()
+    full_name = fields.String()
+    address = fields.String()
+    birthday = fields.String()
+
+
 class UserSchema(Schema):
     id = fields.String()
     email = fields.String()
     phone = fields.String()
     full_name = fields.String()
     address = fields.String()
-    avatar_url = fields.String()
-    date_of_birth = fields.String()
+    birthday = fields.String()
     created_date = fields.Number()
     modified_date = fields.Number()
     type = fields.Number()
+    avatar_url = fields.String()
+    is_active = fields.Boolean()
+    status = fields.Boolean()
     created_user_id = fields.String()
+    last_modified_user_id = fields.String()
+    created_user = fields.Nested(UserParentSchema)
+
