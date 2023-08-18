@@ -1,20 +1,14 @@
 import json
-from datetime import timedelta
-
 from sqlalchemy_pagination import paginate
-
 from app.enums import ADMIN_EMAIL
-from app.validator import AuthValidation, UserSchema, PasswordValidation, VerifyPasswordValidation, GetUserValidation
+from app.validator import UserSchema, GetUserValidation
 from flask import Blueprint, request
-from flask_jwt_extended import (create_access_token, create_refresh_token,
-                                get_jwt_identity, get_raw_jwt, jwt_refresh_token_required, jwt_required)
+from flask_jwt_extended import (get_jwt_identity, get_raw_jwt, jwt_refresh_token_required, jwt_required)
 from sqlalchemy import or_, func, distinct
-from app.api.helper import Token
-from werkzeug.security import check_password_hash, generate_password_hash
-from app.models import User, RedisModel
+from app.models import User
 from app.api.helper import send_error, send_result
 from app.extensions import jwt, db, logger
-from app.utils import trim_dict, get_timestamp_now, data_preprocessing, REGEX_VALID_PASSWORD, REGEX_EMAIL, logged_input, \
+from app.utils import trim_dict, get_timestamp_now, data_preprocessing, REGEX_VALID_PASSWORD, REGEX_EMAIL,\
     normalize_search_input, escape_wildcard
 from app.gateway import authorization_require
 from marshmallow import ValidationError
