@@ -8,13 +8,19 @@ services:
     restart: always
     environment:
       ENV: ${ENV}
-    command: gunicorn --workers=3 --threads=1 -b 0.0.0.0:5012 --preload --log-level=debug server:app
+    command: ["python", "server.py"]
     ports:
       - "5012:5012"
     networks:
       - source-code-base-net
     volumes:
       - ./:/source-code-base
+#  mysql:
+#    image: mysql
+#    ports:
+#      - "5012:5012"
+#    networks:
+#      - source-code-base-net
 networks:
   source-code-base-net:
     name: source-code-base-net
