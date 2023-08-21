@@ -30,11 +30,6 @@ class User(db.Model):
     modified_date_password = db.Column(INTEGER(unsigned=True), default=get_timestamp_now())
 
 
-    @hybrid_property
-    def permission_resources(self):
-        return get_permission_resource(self.id)
-
-
 def get_permission_resource(user_id):
     query = UserGroupRole.query.filter(UserGroupRole.user_id == user_id)
     query_role = query.filter(UserGroupRole.group_id.is_(None)).with_entities(UserGroupRole.role_id).all()
