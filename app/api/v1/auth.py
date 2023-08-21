@@ -89,6 +89,7 @@ def login():
         db.session.rollback()
         return send_error(message=str(ex))
 
+
 @api.route('/refresh', methods=['POST'])
 @jwt_refresh_token_required
 def refresh():
@@ -254,35 +255,3 @@ def expired_token_callback():
 @jwt.revoked_token_loader
 def revoked_token_callback():
     return send_error(code=401, message='SESSION_TOKEN_EXPIRED')
-
-
-@api.route('super-admin', methods=['GET'])
-def oke4():
-    try:
-        return send_result(message='GET OKE')
-    except Exception as ex:
-        return send_error(message=str(ex))
-
-
-@api.route('super-admin', methods=['POST'])
-def oke3():
-    try:
-        return send_result(message='POST OKE')
-    except Exception as ex:
-        return send_error(message=str(ex))
-
-
-@api.route('super-admin', methods=['PUT'])
-def oke2():
-    try:
-        return send_result(message='PUT OKE')
-    except Exception as ex:
-        return send_error(message=str(ex))
-
-
-@api.route('super-admin', methods=['DELETE'])
-def oke1():
-    try:
-        return send_result(message='DELETE OKE')
-    except Exception as ex:
-        return send_error(message=str(ex))
