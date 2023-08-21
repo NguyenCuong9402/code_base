@@ -139,6 +139,7 @@ class Token:
     @classmethod
     def revoke_token(cls, jti):
         RedisModel.query.filter(RedisModel.jti == jti).delete()
+        db.session.flush()
         db.session.commit()
 
     @classmethod
@@ -159,6 +160,7 @@ class Token:
     @classmethod
     def revoke_all_token(cls, user_id: str):
         RedisModel.query.filter(RedisModel.user_id == user_id).delete()
+        db.session.flush()
         db.session.commit()
 
 

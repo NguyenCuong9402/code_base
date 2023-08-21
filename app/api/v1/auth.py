@@ -135,11 +135,14 @@ def logout():
     Examples::
 
     """
+    try:
+        jti = get_raw_jwt()['jti']
+        Token.revoke_token(jti)  # revoke current token from database
 
-    jti = get_raw_jwt()['jti']
-    Token.revoke_token(jti)  # revoke current token from database
-
-    return send_result(message="Logout successfully!")
+        return send_result(message="Logout successfully!")
+    except Exception as ex:
+        db.session.rollback()
+        return send_error(str(ex))
 
 
 @api.route('/init', methods=['POST'])
@@ -155,37 +158,40 @@ def change_password_default():
             "password": "admin@1234"
         }
     """
-
     try:
-        json_req = request.get_json()
+        try:
+            json_req = request.get_json()
+        except Exception as ex:
+            return send_error(message="Request Body incorrect json format: " + str(ex), code=442)
+
+        # trim input body
+        json_body = trim_dict(json_req)
+
+        # validate request body
+        validator_input = PasswordValidation()
+        is_not_validate = validator_input.validate(json_body)
+        if is_not_validate:
+            return send_error(data=is_not_validate, message='INVALID_PASSWORD')
+
+        password = json_body.get("password")
+        is_admin = json_body.get("is_admin")
+
+        user = User.get_current_user()
+        if user is None:
+            return send_error(message='NOT_FOUND_ERROR')
+        user.reset_password = 1  # Flag reset password
+        user.password_hash = generate_password_hash(password)
+        user.modified_date_password = get_timestamp_now()
+        user.modified_date = get_timestamp_now()
+        user.force_change_password = False
+        db.session.commit()
+
+        message = 'CHANGE_DEFAULT_PASS_SUCCESS' if is_admin else 'CHANGE_DEFAULT_PASS_SUCCESS_USER_SITE'
+
+        return send_result(data=UserSchema().dump(user), message=message)
     except Exception as ex:
-        return send_error(message="Request Body incorrect json format: " + str(ex), code=442)
-
-    # trim input body
-    json_body = trim_dict(json_req)
-
-    # validate request body
-    validator_input = PasswordValidation()
-    is_not_validate = validator_input.validate(json_body)
-    if is_not_validate:
-        return send_error(data=is_not_validate, message='INVALID_PASSWORD')
-
-    password = json_body.get("password")
-    is_admin = json_body.get("is_admin")
-
-    user = User.get_current_user()
-    if user is None:
-        return send_error(message='NOT_FOUND_ERROR')
-    user.reset_password = 1  # Flag reset password
-    user.password_hash = generate_password_hash(password)
-    user.modified_date_password = get_timestamp_now()
-    user.modified_date = get_timestamp_now()
-    user.force_change_password = False
-    db.session.commit()
-
-    message = 'CHANGE_DEFAULT_PASS_SUCCESS' if is_admin else 'CHANGE_DEFAULT_PASS_SUCCESS_USER_SITE'
-
-    return send_result(data=UserSchema().dump(user), message=message)
+        db.session.rollback()
+        return send_error(str(ex))
 
 
 @api.route('/verify', methods=['POST'])
@@ -227,9 +233,12 @@ def verify_password():
 def remove_redis():
     try:
         RedisModel.query.filter(RedisModel.expires < get_timestamp_now()).delete()
+        db.session.flush()
+
         db.session.commit()
         return send_result(message='Done')
     except Exception as ex:
+        db.session.flush()
         return send_error(message=str(ex))
 
 
