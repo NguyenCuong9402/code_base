@@ -30,7 +30,7 @@ class User(db.Model):
     modified_date_password = db.Column(INTEGER(unsigned=True), default=get_timestamp_now())
 
 
-def get_permission_resource(user_id):
+def get_permission_resource(user_id: str):
     query = UserGroupRole.query.filter(UserGroupRole.user_id == user_id)
     query_role = query.filter(UserGroupRole.group_id.is_(None)).with_entities(UserGroupRole.role_id).all()
     list_role = [item.role_id for item in query_role]
