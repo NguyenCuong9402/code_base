@@ -119,13 +119,12 @@ def upgrade():
     )
     op.create_table('user_group_role',
     sa.Column('id', sa.String(length=50), nullable=False),
-    sa.Column('user_id', sa.String(length=50), nullable=False),
-    sa.Column('group_id', sa.String(length=50), nullable=False),
-    sa.Column('role_id', sa.String(length=50), nullable=False),
+    sa.Column('user_id', sa.String(length=50), nullable=True),
+    sa.Column('group_id', sa.String(length=50), nullable=True),
+    sa.Column('role_id', sa.String(length=50), nullable=True),
     sa.ForeignKeyConstraint(['group_id'], ['group.id'], onupdate='CASCADE', ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['role_id'], ['role.id'], onupdate='CASCADE', ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], onupdate='CASCADE', ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id', 'user_id', 'group_id', 'role_id')
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], onupdate='CASCADE', ondelete='CASCADE')
     )
     # ### end Alembic commands ###
 

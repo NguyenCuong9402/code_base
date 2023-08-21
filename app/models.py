@@ -134,12 +134,9 @@ class UserGroupRole(db.Model):
     __tablename__ = 'user_group_role'
 
     id = db.Column(db.String(50), primary_key=True)
-    user_id = db.Column(db.String(50), db.ForeignKey('user.id', ondelete='CASCADE', onupdate='CASCADE'),
-                        primary_key=True)
-    group_id = db.Column(db.String(50), db.ForeignKey('group.id', ondelete='CASCADE', onupdate='CASCADE'),
-                         primary_key=True)
-    role_id = db.Column(db.String(50), db.ForeignKey('role.id', ondelete='CASCADE', onupdate='CASCADE'),
-                        primary_key=True)
+    user_id = db.Column(db.String(50), db.ForeignKey('user.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=True)
+    group_id = db.Column(db.String(50), db.ForeignKey('group.id', ondelete='CASCADE', onupdate='CASCADE'),  nullable=True)
+    role_id = db.Column(db.String(50), db.ForeignKey('role.id', ondelete='CASCADE', onupdate='CASCADE'),  nullable=True)
 
 
 class RedisModel(db.Model):
