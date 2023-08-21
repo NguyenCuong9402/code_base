@@ -4,7 +4,7 @@ os_env = os.environ
 
 
 class Config(object):
-    SECRET_KEY = '3nF3Rn0'
+    SECRET_KEY = '3nF3Rn0sdf'
     APP_DIR = os.path.abspath(os.path.dirname(__file__))  # This directory
     PROJECT_ROOT = os.path.abspath(os.path.join(APP_DIR, os.pardir))
 
@@ -26,14 +26,14 @@ class ProdConfig(Config):
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
 
     # mysql config
-    SQLALCHEMY_DATABASE_URI = 'mysql://root:XY58JqcxNLmy8SHN@192.168.1.212:3307/demo_prd'
+    SQLALCHEMY_DATABASE_URI = 'mysql://root:XY58JqcxNLmy8SHN@192.168.1.212:3307/demo_stg'
     TIME_ZONE = 'Asia/Ho_Chi_Minh'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     BK_HOST_MYSQL = '192.168.1.17'
     BK_PORT_MYSQL = '3306'
     BK_USERNAME_MYSQL = 'root'
     BK_PASSWORD_MYSQL = 'G-^rqEyhE6p=A#u*RU:V9J6-'
-    BK_DBNAME_MYSQL = 'demo_prd'
+    BK_DBNAME_MYSQL = 'demo_stg'
 
 
 class StgConfig(Config):
@@ -82,7 +82,7 @@ class DevConfig(Config):
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
 
     # mysql config
-    SQLALCHEMY_DATABASE_URI = 'mysql://root:G-^rqEyhE6p=A#u*RU:V9J6-@sv4.vn.boot.ai:3306/demo_dev'
+    SQLALCHEMY_DATABASE_URI = 'mysql://root:G-^rqEyhE6p=A#u*RU:V9J6-@sv4.vn.boot.ai:3306/demo_stg'
     TIME_ZONE = 'Asia/Ho_Chi_Minh'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     BK_HOST_MYSQL = '192.168.1.17'

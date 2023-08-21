@@ -1,13 +1,5 @@
 # syntax = docker/dockerfile:experimental
 FROM python:3.7
-RUN apt-get update && \
-    apt-get install -y locales && \
-    sed -i -e 's/# vi_VN UTF-8/vi_VN UTF-8/' /etc/locale.gen && \
-    dpkg-reconfigure --frontend=noninteractive locales
-RUN apt-get update
-RUN apt-get install -y curl
-RUN apt-get install -y default-mysql-client
-RUN apt-get install -y gnupg
 # Add a /source-code-base volume
 VOLUME ["/source-code-base"]
 WORKDIR /source-code-base

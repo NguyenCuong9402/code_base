@@ -10,7 +10,7 @@ from app.models import Message, UserGroupRole, User, Role, RedisModel, db
 from app.settings import ProdConfig, DevConfig, StgConfig
 from datetime import datetime, timedelta
 
-CONFIG = StgConfig
+CONFIG = ProdConfig if os.environ.get('ENV') == 'prd' else StgConfig if os.environ.get('ENV') == 'stg' else DevConfig
 BLOCKLIST = set()
 
 
