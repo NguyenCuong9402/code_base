@@ -34,10 +34,6 @@ class User(db.Model):
     def permission_resources(self):
         return get_permission_resource(self.id)
 
-    @hybrid_property
-    def roles_key(self):
-        return get_roles_key(self.id)
-
 
 def get_permission_resource(user_id):
     query = UserGroupRole.query.filter(UserGroupRole.user_id == user_id)
@@ -55,10 +51,11 @@ def get_permission_resource(user_id):
 
 
 def get_roles_key(user_id: str):
-    query = UserGroupRole.query.filter(UserGroupRole.user_id == user_id)
-    query_role = query.filter(UserGroupRole.group_id.is_(None)).with_entities(UserGroupRole.role_id).all()
+    query_role = UserGroupRole.query.filter(UserGroupRole.user_id == user_id, UserGroupRole.group_id.is_(None))\
+        .with_entities(UserGroupRole.role_id).all()
     list_role = [item.role_id for item in query_role]
-    group_ids = query.filter(UserGroupRole.role_id.is_(None)).with_entities(UserGroupRole.group_id).subquery()
+    group_ids = UserGroupRole.query.filter(UserGroupRole.user_id == user_id, UserGroupRole.role_id.is_(None))\
+        .with_entities(UserGroupRole.group_id).subquery()
     group_role = UserGroupRole.query.filter(UserGroupRole.user_id.is_(None),
                                             UserGroupRole.group_id.in_(group_ids)) \
         .with_entities(UserGroupRole.role_id).all()
@@ -144,7 +141,7 @@ class RedisModel(db.Model):
     id = db.Column(db.String(50), primary_key=True)
     user_id = db.Column(db.String(50), db.ForeignKey('user.id'), primary_key=True, nullable=False)
     jti = db.Column(db.String(200))
-    encoded_token = db.Column(db.String(200))
+    encoded_token = db.Column(db.Text)
     expires = db.Column(db.Integer)
 
 

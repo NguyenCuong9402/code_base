@@ -79,7 +79,7 @@ def upgrade():
     sa.Column('id', sa.String(length=50), nullable=False),
     sa.Column('user_id', sa.String(length=50), nullable=False),
     sa.Column('jti', sa.String(length=200), nullable=True),
-    sa.Column('encoded_token', sa.String(length=200), nullable=True),
+    sa.Column('encoded_token',  sa.Text(), nullable=True),
     sa.Column('expires', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id', 'user_id')

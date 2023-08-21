@@ -8,7 +8,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
 
 from app.api.helper import Token
 from werkzeug.security import check_password_hash, generate_password_hash
-from app.models import User, RedisModel, Role, RolePermission, Permission
+from app.models import User, RedisModel, Role, RolePermission, Permission, get_roles_key
 from app.api.helper import send_error, send_result
 from app.extensions import jwt, db
 from app.utils import trim_dict, get_timestamp_now, data_preprocessing, REGEX_VALID_PASSWORD, REGEX_EMAIL, logged_input
@@ -36,56 +36,58 @@ def login():
             "is_admin": False
         }
     """
-
     try:
-        json_req = request.get_json()
+        try:
+            json_req = request.get_json()
+        except Exception as ex:
+            return send_error(message="Request Body incorrect json format: " + str(ex), code=442)
+
+        # trim input body
+        json_body = trim_dict(json_req)
+
+        # validate request body
+        is_valid, message_id = data_preprocessing(cls_validator=AuthValidation, input_json=json_req)
+        if not is_valid:
+            return send_error(message_id=message_id)
+
+        # Check username and password
+        email = json_body.get("email")
+        password = json_body.get("password")
+        is_admin = json_body.get("is_admin")
+
+        user = User.query.filter(User.email == email).first()
+        if user is None or (password and not check_password_hash(user.password_hash, password)):
+            return send_error(message='Fail')
+        roles = get_roles_key(user.id)
+        # Check permission login (from user/admin side?)
+        is_authorized = False
+        if is_admin:
+            if 'permissionadminbasic' in roles:
+                is_authorized = True
+        else:
+            if 'permissionuserbasic' in roles:
+                is_authorized = True
+        if not is_authorized:
+            return send_error(message='YOU_DO_NOT_HAVE_PERMISSION')
+
+        if not user.status:
+            return send_error(message='INACTIVE_ACCOUNT_ERROR')
+
+        access_token = create_access_token(identity=user.id, expires_delta=ACCESS_EXPIRES)
+        refresh_token = create_refresh_token(identity=user.id, expires_delta=REFRESH_EXPIRES)
+
+        # Store the tokens in our store with a status of not currently revoked.
+        Token.add_token_to_database(access_token, user.id)
+        Token.add_token_to_database(refresh_token, user.id)
+
+        data: dict = UserSchema().dump(user)
+        data.setdefault('access_token', access_token)
+        data.setdefault('refresh_token', refresh_token)
+
+        return send_result(data=data)
     except Exception as ex:
-        return send_error(message="Request Body incorrect json format: " + str(ex), code=442)
-
-    # trim input body
-    json_body = trim_dict(json_req)
-
-    # validate request body
-    is_valid, message_id = data_preprocessing(cls_validator=AuthValidation, input_json=json_req)
-    if not is_valid:
-        return send_error(message_id=message_id)
-
-    # Check username and password
-    email = json_body.get("email")
-    password = json_body.get("password")
-    is_admin = json_body.get("is_admin")
-
-    user = User.query.filter(User.email == email).first()
-    if user is None or (password and not check_password_hash(user.password_hash, password)):
-        return send_error(message='Fail')
-
-    # Check permission login (from user/admin side?)
-    is_authorized = False
-    if is_admin:
-        if 'Permission_Admin_Basic' in User.roles_key:
-            is_authorized = True
-    else:
-        if 'Permission_User_Basic' in User.roles_key:
-            is_authorized = True
-    if not is_authorized:
-        return send_error(message='YOU_DO_NOT_HAVE_PERMISSION')
-
-    if not user.status:
-        return send_error(message='INACTIVE_ACCOUNT_ERROR')
-
-    access_token = create_access_token(identity=user.id, expires_delta=ACCESS_EXPIRES)
-    refresh_token = create_refresh_token(identity=user.id, expires_delta=REFRESH_EXPIRES)
-
-    # Store the tokens in our store with a status of not currently revoked.
-    Token.add_token_to_database(access_token, user.id)
-    Token.add_token_to_database(refresh_token, user.id)
-
-    data: dict = UserSchema().dump(user)
-    data.setdefault('access_token', access_token)
-    data.setdefault('refresh_token', refresh_token)
-
-    return send_result(data=data)
-
+        db.session.rollback()
+        return send_error(message=str(ex))
 
 @api.route('/refresh', methods=['POST'])
 @jwt_refresh_token_required
@@ -254,14 +256,33 @@ def revoked_token_callback():
     return send_error(code=401, message='SESSION_TOKEN_EXPIRED')
 
 
-@api.route('', methods=['PUT'])
-def oke():
+@api.route('super-admin', methods=['GET'])
+def oke4():
     try:
-        role = Role.query.filter(Role.key == 'permissionadminauthentic', Role.type == 15).first()
-        permissions = Permission.query.filter(Permission.key == 'permissionadminauthentic').all()
-        add = [RolePermission(id=str(uuid.uuid4()), role_id=role.id, permission_id=permission.id) for permission in permissions]
-        db.session.bulk_save_objects(add)
-        db.session.commit()
-        return send_result(message='OKE')
+        return send_result(message='GET OKE')
+    except Exception as ex:
+        return send_error(message=str(ex))
+
+
+@api.route('super-admin', methods=['POST'])
+def oke3():
+    try:
+        return send_result(message='POST OKE')
+    except Exception as ex:
+        return send_error(message=str(ex))
+
+
+@api.route('super-admin', methods=['PUT'])
+def oke2():
+    try:
+        return send_result(message='PUT OKE')
+    except Exception as ex:
+        return send_error(message=str(ex))
+
+
+@api.route('super-admin', methods=['DELETE'])
+def oke1():
+    try:
+        return send_result(message='DELETE OKE')
     except Exception as ex:
         return send_error(message=str(ex))
