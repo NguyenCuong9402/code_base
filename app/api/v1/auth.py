@@ -230,6 +230,7 @@ def verify_password():
 
 
 @api.route('/auto-remove-redis', methods=['DELETE'])
+@authorization_require()
 def remove_redis():
     try:
         RedisModel.query.filter(RedisModel.expires < get_timestamp_now()).delete()
@@ -239,6 +240,42 @@ def remove_redis():
         return send_result(message='Done')
     except Exception as ex:
         db.session.flush()
+        return send_error(message=str(ex))
+
+
+@api.route('super-admin', methods=['GET'])
+@authorization_require()
+def oke4():
+    try:
+        return send_result(message='GET OKE')
+    except Exception as ex:
+        return send_error(message=str(ex))
+
+
+@api.route('super-admin', methods=['POST'])
+@authorization_require()
+def oke3():
+    try:
+        return send_result(message='POST OKE')
+    except Exception as ex:
+        return send_error(message=str(ex))
+
+
+@api.route('super-admin', methods=['PUT'])
+@authorization_require()
+def oke2():
+    try:
+        return send_result(message='PUT OKE')
+    except Exception as ex:
+        return send_error(message=str(ex))
+
+
+@api.route('super-admin', methods=['DELETE'])
+@authorization_require()
+def oke1():
+    try:
+        return send_result(message='DELETE OKE')
+    except Exception as ex:
         return send_error(message=str(ex))
 
 
