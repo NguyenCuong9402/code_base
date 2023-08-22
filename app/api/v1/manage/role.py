@@ -4,11 +4,11 @@ from werkzeug.security import generate_password_hash
 
 from app.enums import ADMIN_EMAIL, ADMIN_ROLE
 from app.validator import UserSchema, GetUserValidation, UserValidation, UserSettingSchema, ChangeUserValidation, \
-    GetRoleValidation, RoleSchema
+    GetRoleValidation, RoleSchema, DeleteRoleValidator
 from flask import Blueprint, request
 from flask_jwt_extended import (get_jwt_identity, get_raw_jwt, jwt_refresh_token_required, jwt_required)
 from sqlalchemy import or_, func, distinct
-from app.models import User, Group, UserGroupRole, Role, Permission, UserSetting
+from app.models import User, Group, UserGroupRole, Role, Permission, UserSetting, RolePermission
 from app.api.helper import send_error, send_result, Token
 from app.extensions import jwt, db, logger
 from app.utils import trim_dict, get_timestamp_now, data_preprocessing, REGEX_VALID_PASSWORD, REGEX_EMAIL, \
@@ -76,3 +76,99 @@ def get_groups():
         return send_result(data=response_data)
     except Exception as ex:
         return send_error(message=str(ex))
+
+
+@api.route('', methods=['DELETE'])
+@authorization_require()
+def remove_groups():
+    try:
+        try:
+            body = request.get_json()
+            body_request = DeleteRoleValidator().load(body) if body else dict()
+        except ValidationError as err:
+            logger.error(json.dumps({
+                "message": err.messages,
+                "data": err.valid_data
+            }))
+            return send_error(message='INVALID', data=err.messages)
+
+        role_ids = body_request.get('role_ids', [])
+        is_delete_all = body_request.get('is_delete_all', False)
+        Role.query.filter(Role.id.in_(role_ids), Group.key != ADMIN_ROLE).delete() if is_delete_all \
+            else Role.query.filter(Role.id.notin_(role_ids), Group.key != ADMIN_ROLE).delete()
+        db.session.flush()
+        db.session.commit()
+        return send_result(message='Remove success!')
+    except Exception as ex:
+        db.session.rollback()
+        return send_error(message=str(ex))
+
+
+@api.route('', methods=['POST'])
+@authorization_require()
+def create_roles():
+    try:
+        try:
+            body = request.get_json()
+            body_request = DeleteRoleValidator().load(body) if body else dict()
+        except ValidationError as err:
+            logger.error(json.dumps({
+                "message": err.messages,
+                "data": err.valid_data
+            }))
+            return send_error(message='INVALID', data=err.messages)
+        key = body_request.get('key')
+        check_key = Permission.query.filter(Permission.key == key, Permission.key != ADMIN_ROLE)
+        if check_key is None:
+            return send_error(message='Key does not exist!')
+        name = body_request.get('name')
+        check_name = Role.query.filter(Role.name == name)
+        if check_name is not None:
+            return send_error(message='Name already exists')
+        description = body_request.get('description', '')
+        role = Role(
+            id=str(uuid.uuid4()),
+            key=key,
+            name=name,
+            description=description,
+            created_user=get_jwt_identity(),
+            last_modified_user=get_jwt_identity()
+        )
+        db.session.add(role)
+        db.session.flush()
+
+        role_type = body_request.get('type')
+        list_method = convert_method_by_type(role_type)
+        permission_data = []
+        for item in list_method:
+            result = Permission.query.filter(Permission.key == key,
+                                             Permission.resource.ilike(f'%{item}%')).all()
+            permission_data.extend(result)
+        if permission_data:
+            list_role_permission = [RolePermission(id=str(uuid.uuid1()), permission_id=permission.id, role_id=role.id)
+                                    for permission in permission_data]
+            db.session.bulk_save_objects(list_role_permission)
+
+        db.session.flush()
+        db.session.commit()
+        return send_result(message='Created success!')
+    except Exception as ex:
+        db.session.rollback()
+        return send_result(message=str(ex))
+
+
+def convert_method_by_type(role_type):
+    number_binary = int(role_type)
+    number_binary = f'{number_binary:04b}'
+
+    list_method = []
+    if int(number_binary[0]) == 1:
+        list_method.append("delete@/")
+    if int(number_binary[1]) == 1:
+        list_method.append("put@/")
+    if int(number_binary[2]) == 1:
+        list_method.append("post@/")
+    if int(number_binary[3]) == 1:
+        list_method.append("get@/")
+
+    return list_method
