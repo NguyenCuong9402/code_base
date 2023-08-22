@@ -119,6 +119,14 @@ class VerifyPasswordValidation(Schema):
                                      validate=[validate.Length(min=1, max=16), validate.Regexp(REGEX_VALID_PASSWORD)])
 
 
+class UpdateProfileSchema(Schema):
+    email = fields.String(validate=[validate.Regexp(REGEX_EMAIL)])
+    phone = fields.String()
+    full_name = fields.String(validate=[validate.Regexp(REGEX_FULLNAME_VIETNAMESE)])
+    address = fields.String()
+    birthday = fields.String()
+
+
 class PasswordValidation(Schema):
     """
     Validator
