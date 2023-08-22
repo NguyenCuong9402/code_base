@@ -24,7 +24,7 @@ class User(db.Model):
     created_date = db.Column(INTEGER(unsigned=True), default=get_timestamp_now(), index=True)
     modified_date = db.Column(INTEGER(unsigned=True), default=0)
     created_user_id = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'), nullable=True)
-    last_modified_user_id = db.Column(db.String(50))
+    last_modified_user_id = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'), nullable=True)
     force_change_password = db.Column(db.Boolean, default=0)
     reset_password = db.Column(db.Boolean, default=0)
     modified_date_password = db.Column(INTEGER(unsigned=True), default=get_timestamp_now())

@@ -135,6 +135,10 @@ class PasswordValidation(Schema):
                                      validate=[validate.Length(min=1, max=16), validate.Regexp(REGEX_VALID_PASSWORD)])
 
 
+class ChangeUserValidation(Schema):
+    is_active = fields.Boolean(required=True)
+
+
 class UserParentSchema(Schema):
     id = fields.String()
     email = fields.String()
@@ -172,3 +176,5 @@ class UserSettingSchema(Schema):
     display_column = fields.String()
     created_date = fields.Number()
     modified_date = fields.Number()
+
+

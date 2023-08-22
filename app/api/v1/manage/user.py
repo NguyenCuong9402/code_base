@@ -3,12 +3,12 @@ from sqlalchemy_pagination import paginate
 from werkzeug.security import generate_password_hash
 
 from app.enums import ADMIN_EMAIL
-from app.validator import UserSchema, GetUserValidation, UserValidation, UserSettingSchema
+from app.validator import UserSchema, GetUserValidation, UserValidation, UserSettingSchema, ChangeUserValidation
 from flask import Blueprint, request
 from flask_jwt_extended import (get_jwt_identity, get_raw_jwt, jwt_refresh_token_required, jwt_required)
 from sqlalchemy import or_, func, distinct
 from app.models import User, Group, UserGroupRole, Role, Permission, UserSetting
-from app.api.helper import send_error, send_result
+from app.api.helper import send_error, send_result, Token
 from app.extensions import jwt, db, logger
 from app.utils import trim_dict, get_timestamp_now, data_preprocessing, REGEX_VALID_PASSWORD, REGEX_EMAIL, \
     normalize_search_input, escape_wildcard, generate_password
@@ -162,6 +162,46 @@ def create_user():
         data = UserSchema().dump(new_user)
         data['password'] = password
         return send_result(data=data, message='Success')
+    except Exception as e:
+        db.session.rollback()
+        return send_error(message=str(e))
+
+
+@api.route('/<user_id>', methods=['PUT'])
+@authorization_require()
+def put_user(user_id):
+    try:
+        try:
+            json_req = request.get_json()
+        except Exception as ex:
+            return send_error(message="Request Body incorrect json format: " + str(ex), code=442)
+        # trim input body
+        json_body = trim_dict(json_req)
+        # validate request body
+        validator_input = ChangeUserValidation()
+        is_not_validate = validator_input.validate(json_body)
+        if is_not_validate:
+            return send_error(data=is_not_validate, message='INVALID')
+        user = User.query.filter_by(id=user_id).first()
+        user.is_active = json_req.get('is_active')
+        user.last_modified_user_id = get_jwt_identity()
+        db.session.commit()
+        return send_result(message='CHANGE_SUCCESS')
+    except Exception as e:
+        db.session.rollback()
+        return send_error(message=str(e))
+
+
+@api.route('/<user_id>', methods=['DELETE'])
+@authorization_require()
+def delete_user(user_id):
+    try:
+        user = User.query.filter_by(id=user_id).first()
+        db.session.delete(user)
+        db.session.commit()
+        # revoke all token of reset user  from database
+        Token.revoke_all_token(user_id)
+        return send_result(message='DELETE_SUCCESS')
     except Exception as e:
         db.session.rollback()
         return send_error(message=str(e))

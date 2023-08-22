@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 58befb54bd1c
+Revision ID: ec2ce394e9b2
 Revises: 
-Create Date: 2023-08-22 09:30:19.072349
+Create Date: 2023-08-22 10:37:20.027710
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = '58befb54bd1c'
+revision = 'ec2ce394e9b2'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -56,6 +56,7 @@ def upgrade():
     sa.Column('reset_password', sa.Boolean(), nullable=True),
     sa.Column('modified_date_password', mysql.INTEGER(unsigned=True), nullable=True),
     sa.ForeignKeyConstraint(['created_user_id'], ['user.id'], onupdate='CASCADE', ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['last_modified_user_id'], ['user.id'], onupdate='CASCADE', ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_user_created_date'), 'user', ['created_date'], unique=False)

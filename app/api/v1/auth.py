@@ -212,7 +212,6 @@ def change_password():
         user_id = get_jwt_identity()
         # trim input body
         json_body = trim_dict(json_req)
-
         # validate request body
         validator_input = PasswordValidation()
         is_not_validate = validator_input.validate(json_body)
