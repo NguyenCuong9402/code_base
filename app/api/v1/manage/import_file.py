@@ -49,4 +49,4 @@ def upload_file():
         else:
             return send_error(message="No file uploaded.")
     except Exception as e:
-        return str(e)
+        return send_error(message=str(e))
