@@ -15,14 +15,15 @@ services:
       - source-code-base-net
     volumes:
       - ./:/source-code-base
-  mysql-stg:
-    image: mysql:8.0
-    container_name: mysql-stg
+  db-stg:
+    image: mysql
+    container_name: mysql_base_stg
     command:
       - --default-authentication-plugin=mysql_native_password
       - --sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
     restart: always
     environment:
+      SQLALCHEMY_TRACK_MODIFICATIONS: "True"
       MYSQL_ROOT_PASSWORD: G-^rqEyhE6p=A#u*RU:V9J6-
     ports:
       - "3306:3306"
