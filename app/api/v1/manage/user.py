@@ -182,7 +182,7 @@ def put_user(user_id):
         is_not_validate = validator_input.validate(json_body)
         if is_not_validate:
             return send_error(data=is_not_validate, message='INVALID')
-        user = User.query.filter_by(id=user_id).first()
+        user = User.query.filter(User.id == user_id, type != 3).first()
         is_active = json_req.get('is_active', None)
         group_ids = json_req.get('group_ids', None)
         role_ids = json_req.get('role_ids', None)
@@ -217,7 +217,9 @@ def put_user(user_id):
 @authorization_require()
 def delete_user(user_id):
     try:
-        user = User.query.filter_by(id=user_id).first()
+        user = User.query.filter(User.id == user_id, User.type != 3)
+        if user is None:
+            return send_error(message='NOT FOUND USER')
         db.session.delete(user)
         db.session.commit()
         # revoke all token of reset user  from database
