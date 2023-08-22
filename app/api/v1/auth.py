@@ -8,7 +8,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
 
 from app.api.helper import Token
 from werkzeug.security import check_password_hash, generate_password_hash
-from app.models import User, RedisModel, Role, RolePermission, Permission, get_roles_key
+from app.models import User, TokenModel, Role, RolePermission, Permission, get_roles_key
 from app.api.helper import send_error, send_result
 from app.extensions import jwt, db
 from app.utils import trim_dict, get_timestamp_now, data_preprocessing, REGEX_VALID_PASSWORD, REGEX_EMAIL, logged_input
@@ -229,53 +229,17 @@ def verify_password():
     return send_result(data={})
 
 
-@api.route('/auto-remove-redis', methods=['DELETE'])
+@api.route('/auto-remove-token', methods=['DELETE'])
 @authorization_require()
-def remove_redis():
+def remove_token():
     try:
-        RedisModel.query.filter(RedisModel.expires < get_timestamp_now()).delete()
+        TokenModel.query.filter(TokenModel.expires < get_timestamp_now()).delete()
         db.session.flush()
 
         db.session.commit()
         return send_result(message='Done')
     except Exception as ex:
         db.session.flush()
-        return send_error(message=str(ex))
-
-
-@api.route('super-admin', methods=['GET'])
-@authorization_require()
-def oke4():
-    try:
-        return send_result(message='GET OKE')
-    except Exception as ex:
-        return send_error(message=str(ex))
-
-
-@api.route('super-admin', methods=['POST'])
-@authorization_require()
-def oke3():
-    try:
-        return send_result(message='POST OKE')
-    except Exception as ex:
-        return send_error(message=str(ex))
-
-
-@api.route('super-admin', methods=['PUT'])
-@authorization_require()
-def oke2():
-    try:
-        return send_result(message='PUT OKE')
-    except Exception as ex:
-        return send_error(message=str(ex))
-
-
-@api.route('super-admin', methods=['DELETE'])
-@authorization_require()
-def oke1():
-    try:
-        return send_result(message='DELETE OKE')
-    except Exception as ex:
         return send_error(message=str(ex))
 
 

@@ -1,17 +1,11 @@
 import os
-import pickle
-from typing import List
 import uuid
 from flask import jsonify, request
 from flask_jwt_extended import decode_token, get_jwt_identity
 from app.utils import get_timestamp_now
 from marshmallow import ValidationError
-from app.models import Message, UserGroupRole, User, Role, RedisModel, db
-from app.settings import DevConfig
+from app.models import Message, UserGroupRole, User, Role, TokenModel, db
 from datetime import datetime, timedelta
-
-CONFIG = DevConfig
-
 
 def send_result(data: any = None, message_id: str = '', message: str = "OK", code: int = 200,
                 status: str = 'success', show: bool = False, duration: int = 0,
@@ -125,7 +119,7 @@ class Token:
         decoded_token = decode_token(encoded_token)
         jti = decoded_token['jti']
         expires = int(decoded_token['exp'])
-        add_jti = RedisModel(
+        add_jti = TokenModel(
             id=str(uuid.uuid4()),
             user_id=user_id,
             jti=jti,
@@ -137,7 +131,7 @@ class Token:
 
     @classmethod
     def revoke_token(cls, jti):
-        RedisModel.query.filter(RedisModel.jti == jti).delete()
+        TokenModel.query.filter(TokenModel.jti == jti).delete()
         db.session.flush()
         db.session.commit()
 
@@ -151,14 +145,14 @@ class Token:
         """
         jti = decoded_token['jti']
         is_revoked = False
-        get_jti = RedisModel.query.filter(RedisModel.jti == jti, RedisModel.expires > get_timestamp_now()).first()
+        get_jti = TokenModel.query.filter(TokenModel.jti == jti, TokenModel.expires > get_timestamp_now()).first()
         if get_jti is None:
             is_revoked = True
         return is_revoked
 
     @classmethod
     def revoke_all_token(cls, user_id: str):
-        RedisModel.query.filter(RedisModel.user_id == user_id).delete()
+        TokenModel.query.filter(TokenModel.user_id == user_id).delete()
         db.session.flush()
         db.session.commit()
 

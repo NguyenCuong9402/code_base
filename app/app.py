@@ -3,8 +3,8 @@ from .api import v1 as api_v1
 from flask import Flask, request
 from flask_cors import CORS
 
-from .api.helper import CONFIG, send_result, send_error
-from .extensions import jwt, db, migrate
+from .api.helper import send_result, send_error
+from .extensions import jwt, db, migrate, CONFIG
 
 
 def create_app(config_object=CONFIG):

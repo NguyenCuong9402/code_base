@@ -15,7 +15,7 @@ services:
       - source-code-base-net
     volumes:
       - ./:/source-code-base
-  mysql:
+  mysql-stg:
     image: mysql:8.0
     container_name: mysql-stg
     command:
@@ -25,7 +25,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: G-^rqEyhE6p=A#u*RU:V9J6-
     ports:
-      - "5012:5012"
+      - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
       - ./init_db/init_mysql/init_files/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -34,3 +34,6 @@ services:
 networks:
   source-code-base-net:
     name: source-code-base-net
+
+volumes:
+  db_data:

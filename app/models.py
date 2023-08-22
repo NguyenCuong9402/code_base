@@ -23,7 +23,7 @@ class User(db.Model):
     status = db.Column(db.Boolean, default=1)  # 1: Kích hoạt, 0: Không kích hoạt
     created_date = db.Column(INTEGER(unsigned=True), default=get_timestamp_now(), index=True)
     modified_date = db.Column(INTEGER(unsigned=True), default=0)
-    created_user_id = db.Column(db.String(50))
+    created_user_id = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'), nullable=True)
     last_modified_user_id = db.Column(db.String(50))
     force_change_password = db.Column(db.Boolean, default=0)
     reset_password = db.Column(db.Boolean, default=0)
@@ -108,7 +108,7 @@ class Permission(db.Model):
     id = db.Column(db.String(50), primary_key=True)
     key = db.Column(db.String(100), nullable=False)
     name = db.Column(db.String(100), nullable=False)
-    resource = db.Column(db.String(100), nullable=False, unique=True)
+    resource = db.Column(db.String(100), nullable=False)
     roles = db.relationship("Role", back_populates="permissions", secondary="role_permission")
 
 
@@ -131,8 +131,8 @@ class UserGroupRole(db.Model):
     role_id = db.Column(db.String(50), db.ForeignKey('role.id', ondelete='CASCADE', onupdate='CASCADE'),  nullable=True)
 
 
-class RedisModel(db.Model):
-    __tablename__ = 'redis'
+class TokenModel(db.Model):
+    __tablename__ = 'token'
     id = db.Column(db.String(50), primary_key=True)
     user_id = db.Column(db.String(50), db.ForeignKey('user.id'), primary_key=True, nullable=False)
     jti = db.Column(db.String(200))

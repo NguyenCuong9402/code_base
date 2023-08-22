@@ -5,10 +5,10 @@ import logging
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
-from .settings import ProdConfig, StgConfig, DevConfig
+from .settings import DevConfig
 from apscheduler.schedulers.background import BackgroundScheduler
 
-CONFIG = ProdConfig if os.environ.get('ENV') == 'prd' else StgConfig if os.environ.get('ENV') == 'stg' else DevConfig
+CONFIG = DevConfig
 
 jwt = JWTManager()
 
