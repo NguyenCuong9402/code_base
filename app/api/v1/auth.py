@@ -191,9 +191,9 @@ def logout():
         return send_error(str(ex))
 
 
-@api.route('/init', methods=['POST'])
+@api.route('/change-password', methods=['POST'])
 @jwt_required
-def change_password_default():
+def change_password():
     """
     This is controller of the login api
 
