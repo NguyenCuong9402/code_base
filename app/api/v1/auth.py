@@ -40,7 +40,7 @@ def register():
         check_exits_user = User.query.filter_by(email=email).first()
         if check_exits_user:
             return send_error(message='EXISTED_EMAIL')
-        roles = Role.query.filter(Role.key == 'permissionuserbasic').first()
+        role = Role.query.filter(Role.key == 'permissionuserbasic').first()
         # register user
         new_user = User(
             id=str(uuid.uuid4()),
@@ -54,8 +54,8 @@ def register():
         )
         db.session.add(new_user)
         db.session.flush()
-        list_user_role = [UserGroupRole(id=str(uuid.uuid4()), user_id=new_user.id, role=role.id) for role in roles]
-        db.session.bulk_save_objects(list_user_role)
+        user_role = UserGroupRole(id=str(uuid.uuid4()), user_id=new_user.id, role_id=role.id)
+        db.session.add(user_role)
         db.session.flush()
         db.session.commit()
         data = UserSchema().dump(new_user)
@@ -157,7 +157,7 @@ def refresh():
     """
 
     user_identity = get_jwt_identity()
-    user = User.get_by_id(user_identity)
+    user = User.query.filter_by(id=user_identity).first()
 
     access_token = create_access_token(identity=user.id, expires_delta=ACCESS_EXPIRES,
                                        user_claims={"force_change_password": user.force_change_password})
