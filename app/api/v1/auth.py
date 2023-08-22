@@ -277,9 +277,6 @@ def verify_password():
     return send_result(data={})
 
 
-
-
-
 @jwt.token_in_blacklist_loader
 def check_if_token_is_revoked(decrypted_token):
     """
