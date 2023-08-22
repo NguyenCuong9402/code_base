@@ -169,7 +169,9 @@ class DeleteGroupValidator(Schema):
 
 
 class ChangeUserValidation(Schema):
-    is_active = fields.Boolean(required=True)
+    is_active = fields.Boolean()
+    group_ids = fields.List(fields.String())
+    role_ids = fields.List(fields.String())
 
 
 class UserParentSchema(Schema):

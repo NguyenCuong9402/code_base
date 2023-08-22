@@ -2,7 +2,7 @@ import json
 from sqlalchemy_pagination import paginate
 from werkzeug.security import generate_password_hash
 
-from app.enums import ADMIN_EMAIL
+from app.enums import ADMIN_EMAIL, ADMIN_GROUP, ADMIN_ROLE
 from app.validator import UserSchema, GetUserValidation, UserValidation, UserSettingSchema, ChangeUserValidation
 from flask import Blueprint, request
 from flask_jwt_extended import (get_jwt_identity, get_raw_jwt, jwt_refresh_token_required, jwt_required)
@@ -183,7 +183,28 @@ def put_user(user_id):
         if is_not_validate:
             return send_error(data=is_not_validate, message='INVALID')
         user = User.query.filter_by(id=user_id).first()
-        user.is_active = json_req.get('is_active')
+        is_active = json_req.get('is_active', None)
+        group_ids = json_req.get('group_ids', None)
+        role_ids = json_req.get('role_ids', None)
+
+        if is_active is not None:
+            user.is_active = is_active
+
+        if group_ids is not None:
+            UserGroupRole.query.filter(UserGroupRole.user_id == user_id, UserGroupRole.role_id.is_(None)).delete()
+            groups = Group.query.filter(Role.key != ADMIN_GROUP, Group.id.in_(group_ids)).all()
+            list_user_group = [UserGroupRole(id=str(uuid.uuid4()), group_id=group.id, user_id=user_id) for group in
+                               groups]
+            db.session.bulk_save_objects(list_user_group)
+            db.session.flush()
+
+        if role_ids is not None:
+            UserGroupRole.query.filter(UserGroupRole.user_id == user_id, UserGroupRole.group_id.is_(None)).delete()
+
+            roles = Role.query.filter(Role.key != ADMIN_ROLE, Role.id.in_(role_ids)).all()
+            list_user_role = [UserGroupRole(id=str(uuid.uuid4()), user_id=user_id, role_id=role.id) for role in roles]
+            db.session.bulk_save_objects(list_user_role)
+            db.session.flush()
         user.last_modified_user_id = get_jwt_identity()
         db.session.commit()
         return send_result(message='CHANGE_SUCCESS')
