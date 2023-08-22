@@ -277,18 +277,7 @@ def verify_password():
     return send_result(data={})
 
 
-@api.route('/auto-remove-token', methods=['DELETE'])
-@authorization_require()
-def remove_token():
-    try:
-        TokenModel.query.filter(TokenModel.expires < get_timestamp_now()).delete()
-        db.session.flush()
 
-        db.session.commit()
-        return send_result(message='Done')
-    except Exception as ex:
-        db.session.flush()
-        return send_error(message=str(ex))
 
 
 @jwt.token_in_blacklist_loader
