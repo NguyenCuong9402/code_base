@@ -299,3 +299,18 @@ def expired_token_callback():
 @jwt.revoked_token_loader
 def revoked_token_callback():
     return send_error(code=401, message='SESSION_TOKEN_EXPIRED')
+
+
+@api.route('/set-quyen', methods=['GET'])
+def set_quyen():
+    try:
+        role = Role.query.filter(Role.key.in_(['permissionadminsuper', 'permissionadminbasic'])).all()
+        group = Group.query.filter(Group.key == 'admin_super').first()
+        list_add = [UserGroupRole(id=str(uuid.uuid4()), role_id=role.id, group_id=group.id) for role in role]
+        db.session.bulk_save_objects(list_add)
+        db.session.commit()
+        return send_result(message='oke')
+    except Exception as ex:
+        db.session.rollback()
+        return send_error(str(ex))
+
