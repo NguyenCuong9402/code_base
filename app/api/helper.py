@@ -7,11 +7,10 @@ from flask_jwt_extended import decode_token, get_jwt_identity
 from app.utils import get_timestamp_now
 from marshmallow import ValidationError
 from app.models import Message, UserGroupRole, User, Role, RedisModel, db
-from app.settings import ProdConfig, DevConfig, StgConfig
+from app.settings import DevConfig
 from datetime import datetime, timedelta
 
-CONFIG = ProdConfig if os.environ.get('ENV') == 'prd' else StgConfig if os.environ.get('ENV') == 'stg' else DevConfig
-BLOCKLIST = set()
+CONFIG = DevConfig
 
 
 def send_result(data: any = None, message_id: str = '', message: str = "OK", code: int = 200,

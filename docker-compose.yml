@@ -15,12 +15,22 @@ services:
       - source-code-base-net
     volumes:
       - ./:/source-code-base
-#  mysql:
-#    image: mysql
-#    ports:
-#      - "5012:5012"
-#    networks:
-#      - source-code-base-net
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-stg
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: G-^rqEyhE6p=A#u*RU:V9J6-
+    ports:
+      - "5012:5012"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./init_db/init_mysql/init_files/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - source-code-base-net
 networks:
   source-code-base-net:
     name: source-code-base-net

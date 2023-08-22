@@ -160,3 +160,6 @@ def create_user():
     except Exception as e:
         db.session.rollback()
         return send_error(message=str(e))
+
+
+
