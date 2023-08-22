@@ -46,16 +46,23 @@ class BaseValidation(Schema):
 
 
 class GetUserValidation(BaseValidation):
-    """
-    Author: TienNguyen
-    Create Date: 24/01/2022
-    Marshmallow Schema
-    Target: validate parameters of introduction
-    """
+
     page = fields.Integer(required=False)
     page_size = fields.Integer(required=False)
     search_name = fields.String(required=False, validate=validate.Length(min=0, max=200))
     status = fields.Integer(required=False, validate=validate.OneOf([0, 1]))
+    sort = fields.String(required=False,
+                         validate=validate.OneOf(
+                             ["full_name", "email", "modified_date", "created_date", "created_user",
+                              "status"]))
+    order_by = fields.String(required=False, validate=validate.OneOf(["asc", "desc"]))
+
+
+class GetGroupValidation(BaseValidation):
+
+    page = fields.Integer(required=False)
+    page_size = fields.Integer(required=False)
+    search_name = fields.String(required=False, validate=validate.Length(min=0, max=200))
     sort = fields.String(required=False,
                          validate=validate.OneOf(
                              ["full_name", "email", "modified_date", "created_date", "created_user",
@@ -127,6 +134,19 @@ class UpdateProfileSchema(Schema):
     birthday = fields.String()
 
 
+class PostGroupValidator(Schema):
+    key = fields.String(required=True)
+    name = fields.String(required=True)
+    description = fields.String()
+    role_ids = fields.List(fields.String(), required=True)
+
+
+class UpdateGroupValidator(Schema):
+    name = fields.String()
+    description = fields.String()
+    role_ids = fields.List(fields.String(), required=True)
+
+
 class PasswordValidation(Schema):
     """
     Validator
@@ -141,6 +161,11 @@ class PasswordValidation(Schema):
                              validate=[validate.Length(min=1, max=16), validate.Regexp(REGEX_VALID_PASSWORD)])
     current_password = fields.String(required=True,
                                      validate=[validate.Length(min=1, max=16), validate.Regexp(REGEX_VALID_PASSWORD)])
+
+
+class DeleteGroupValidator(Schema):
+    group_ids = fields.List(fields.String(), required=True)
+    is_delete_all = fields.Boolean()
 
 
 class ChangeUserValidation(Schema):
@@ -174,6 +199,17 @@ class UserSchema(Schema):
     created_user = fields.Nested(UserParentSchema)
 
 
+class GroupSchema(Schema):
+    id = fields.String()
+    key = fields.String()
+    name = fields.String()
+    description = fields.String()
+    created_date = fields.Integer()
+    modified_date = fields.Integer()
+    modified_user_data = fields.Nested(UserParentSchema)
+    created_user_data = fields.Nested(UserParentSchema)
+
+
 class UserSettingSchema(Schema):
     """
     Author: TienNguyen
@@ -184,5 +220,7 @@ class UserSettingSchema(Schema):
     display_column = fields.String()
     created_date = fields.Number()
     modified_date = fields.Number()
+
+
 
 
