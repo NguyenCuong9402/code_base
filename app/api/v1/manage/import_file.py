@@ -18,7 +18,7 @@ from app.gateway import authorization_require
 from marshmallow import ValidationError
 import uuid
 
-api = Blueprint('import_file', __name__)
+api = Blueprint('manage/import_file', __name__)
 
 
 @api.route('/upload', methods=['POST'])

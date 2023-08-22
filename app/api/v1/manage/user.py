@@ -16,7 +16,7 @@ from app.gateway import authorization_require
 from marshmallow import ValidationError
 import uuid
 
-api = Blueprint('user', __name__)
+api = Blueprint('manage/user', __name__)
 
 
 @api.route('', methods=['GET'])

@@ -6,7 +6,7 @@ from app.extensions import jwt, db, logger
 from app.utils import trim_dict, get_timestamp_now
 from app.gateway import authorization_require
 
-api = Blueprint('token', __name__)
+api = Blueprint('manage/token', __name__)
 
 
 @api.route('/auto-remove-token', methods=['DELETE'])

@@ -71,6 +71,8 @@ def register_blueprints(app):
     :return:
     """
     # Management
+    app.register_blueprint(api_v1.manage.user, url_prefix='/api/v1/manage/users')
+
     app.register_blueprint(api_v1.auth.api, url_prefix='/api/v1/auth')
 
 
