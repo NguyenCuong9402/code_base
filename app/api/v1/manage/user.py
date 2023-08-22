@@ -3,11 +3,11 @@ from sqlalchemy_pagination import paginate
 from werkzeug.security import generate_password_hash
 
 from app.enums import ADMIN_EMAIL
-from app.validator import UserSchema, GetUserValidation, UserValidation
+from app.validator import UserSchema, GetUserValidation, UserValidation, UserSettingSchema
 from flask import Blueprint, request
 from flask_jwt_extended import (get_jwt_identity, get_raw_jwt, jwt_refresh_token_required, jwt_required)
 from sqlalchemy import or_, func, distinct
-from app.models import User, Group, UserGroupRole, Role, Permission
+from app.models import User, Group, UserGroupRole, Role, Permission, UserSetting
 from app.api.helper import send_error, send_result
 from app.extensions import jwt, db, logger
 from app.utils import trim_dict, get_timestamp_now, data_preprocessing, REGEX_VALID_PASSWORD, REGEX_EMAIL, \
@@ -49,8 +49,7 @@ def get_users():
         search_name = normalize_search_input(search_name)
         # 3. Query
         query = User.query
-        # Remove acc admin.fit.mta@gmail.com
-        query = query.filter(User.email != ADMIN_EMAIL, User.is_anonymous != 1)
+        query = query.filter(User.email != ADMIN_EMAIL)
         if status is not None:
             query = query.filter(User.status == status)
 
@@ -161,10 +160,32 @@ def create_user():
         db.session.add(new_user)
         db.session.commit()
         data = UserSchema().dump(new_user)
+        data['password'] = password
         return send_result(data=data, message='Success')
     except Exception as e:
         db.session.rollback()
         return send_error(message=str(e))
+
+
+@api.route('setting', methods=['GET'])
+@authorization_require()
+def get_settings():
+    """ This api get setting of user.
+
+        Returns:
+        Examples::
+    """
+    # id of current user
+    user_id = get_jwt_identity()
+    # Query
+    user_setting = UserSetting.query.filter(UserSetting.user_id == user_id).first()
+    if user_setting is None:
+        return send_error(message="Setting does not exist")
+    # Dump data
+    user_setting = UserSettingSchema().dump(user_setting)
+
+    return send_result(data=user_setting)
+
 
 
 

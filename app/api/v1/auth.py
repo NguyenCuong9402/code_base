@@ -191,7 +191,7 @@ def logout():
         return send_error(str(ex))
 
 
-@api.route('/change-password', methods=['POST'])
+@api.route('/change-password', methods=['PUT'])
 @jwt_required
 def change_password():
     """
@@ -218,22 +218,25 @@ def change_password():
         is_not_validate = validator_input.validate(json_body)
         if is_not_validate:
             return send_error(data=is_not_validate, message='INVALID_PASSWORD')
-
-        password = json_body.get("password")
-
         user = User.query.filter(User.id == user_id)
-        is_admin = False if User.type == 1 else True
         if user is None:
             return send_error(message='NOT_FOUND_ERROR')
+        current_password = json_req.get("current_password")
+        password = json_body.get("password")
+        if not check_password_hash(user.password_hash, current_password):
+            return send_error(message='INCORRECT_PASSWORD')
+        if password == current_password:
+            return send_error(message='SAME_AS_CURRENT_PASSWORD')
+        is_admin = False if User.type == 1 else True
         user.reset_password = 1  # Flag reset password
         user.password_hash = generate_password_hash(password)
         user.modified_date_password = get_timestamp_now()
         user.modified_date = get_timestamp_now()
         user.force_change_password = False
         db.session.commit()
-
         message = 'CHANGE_DEFAULT_PASS_SUCCESS' if is_admin else 'CHANGE_DEFAULT_PASS_SUCCESS_USER_SITE'
-
+        # revoke all token of current user  from database
+        Token.revoke_all_token(user_id)
         return send_result(data=UserSchema().dump(user), message=message)
     except Exception as ex:
         db.session.rollback()
@@ -252,7 +255,7 @@ def verify_password():
         Examples::
 
     """
-    current_user = User.get_current_user()
+    user = User.query.filter(User.id == get_jwt_identity()).first()
     try:
         json_req = request.get_json()
     except Exception as ex:
@@ -269,7 +272,7 @@ def verify_password():
 
     current_password = json_req.get("current_password")
 
-    if not check_password_hash(current_user.password_hash, current_password):
+    if not check_password_hash(user.password_hash, current_password):
         return send_error(message='INCORRECT_PASSWORD')
 
     return send_result(data={})

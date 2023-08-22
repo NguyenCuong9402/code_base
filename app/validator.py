@@ -131,6 +131,8 @@ class PasswordValidation(Schema):
     """
     password = fields.String(required=True,
                              validate=[validate.Length(min=1, max=16), validate.Regexp(REGEX_VALID_PASSWORD)])
+    current_password = fields.String(required=True,
+                                     validate=[validate.Length(min=1, max=16), validate.Regexp(REGEX_VALID_PASSWORD)])
 
 
 class UserParentSchema(Schema):
@@ -159,3 +161,14 @@ class UserSchema(Schema):
     last_modified_user_id = fields.String()
     created_user = fields.Nested(UserParentSchema)
 
+
+class UserSettingSchema(Schema):
+    """
+    Author: TienNguyen
+    Create Date: 14/02/2022
+    Marshmallow Schema for user setting
+    """
+    id = fields.String()
+    display_column = fields.String()
+    created_date = fields.Number()
+    modified_date = fields.Number()
