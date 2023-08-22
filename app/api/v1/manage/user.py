@@ -138,25 +138,30 @@ def create_user():
         groups = Group.query.filter(Group.id.in_(json_req.get("group_ids", []))).all()
         roles = Role.query.filter(Role.id.in_(json_req.get("role_ids", []))).all()
         # create user
-        user_id = str(uuid.uuid4())
-        new_user = User()
-        for key in json_req.keys():
-            new_user.__setattr__(key, json_req[key])
-
-        new_user.id = user_id
-        new_user.created_user_id = user_create_id
-        new_user.last_modified_user_id = user_create_id
-        new_user.created_date = get_timestamp_now()
-        new_user.modified_date = get_timestamp_now()
-
         password = generate_password()
-        new_user.password = password
-        new_user.password_hash = generate_password_hash(password)
-        list_user_role = [UserGroupRole(id=str(uuid.uuid4()), user_id=user_id, role=role.id) for role in roles]
-        list_user_group = [UserGroupRole(id=str(uuid.uuid4()), user_id=user_id, group_id=group.id) for group in groups]
+
+        new_user = User(
+            id=str(uuid.uuid4()),
+            created_date=get_timestamp_now(),
+            modified_date=get_timestamp_now(),
+            password_hash=generate_password_hash(password),
+            email=json_req['email'],
+            full_name=json_req['full_name'],
+            type=2,
+            created_user_id=user_create_id,
+            last_modified_user_id=user_create_id,
+            status=json_req['status']
+        )
+        db.session.add(new_user)
+
+        list_user_role = [UserGroupRole(id=str(uuid.uuid4()), user_id=new_user.id, role=role.id) for role in roles]
+        list_user_group = [UserGroupRole(id=str(uuid.uuid4()), user_id=new_user.id, group_id=group.id) for group in groups]
         db.session.bulk_save_objects(list_user_group)
         db.session.bulk_save_objects(list_user_role)
+        db.session.add(new_user)
         db.session.commit()
+        data = UserSchema().dump(new_user)
+        return send_result(data=data, message='Success')
     except Exception as e:
         db.session.rollback()
         return send_error(message=str(e))

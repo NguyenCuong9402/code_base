@@ -1,14 +1,14 @@
 import json
 import uuid
 from datetime import timedelta
-from app.validator import AuthValidation, UserSchema, PasswordValidation, VerifyPasswordValidation
+from app.validator import AuthValidation, UserSchema, PasswordValidation, VerifyPasswordValidation, RegisterValidation
 from flask import Blueprint, request
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 get_jwt_identity, get_raw_jwt, jwt_refresh_token_required, jwt_required)
 
 from app.api.helper import Token
 from werkzeug.security import check_password_hash, generate_password_hash
-from app.models import User, TokenModel, Role, RolePermission, Permission, get_roles_key
+from app.models import User, TokenModel, Role, RolePermission, Permission, get_roles_key, Group, UserGroupRole
 from app.api.helper import send_error, send_result
 from app.extensions import jwt, db
 from app.utils import trim_dict, get_timestamp_now, data_preprocessing, REGEX_VALID_PASSWORD, REGEX_EMAIL, logged_input
@@ -17,6 +17,52 @@ from app.gateway import authorization_require
 api = Blueprint('auth', __name__)
 ACCESS_EXPIRES = timedelta(days=1)
 REFRESH_EXPIRES = timedelta(days=5)
+
+
+@api.route('/register', methods=['POST'])
+def register():
+    try:
+        try:
+            json_req = request.get_json()
+        except Exception as ex:
+            return send_error(message="Request Body incorrect json format: " + str(ex), code=442)
+        # trim input body
+        json_body = trim_dict(json_req)
+        # validate request body
+        is_valid, message_id = data_preprocessing(cls_validator=RegisterValidation, input_json=json_req)
+        if not is_valid:
+            return send_error(message_id='error')
+        email = json_body.get("email")
+        password = json_body.get("password")
+        full_name = json_body.get("full_name")
+        phone = json_body.get("phone")
+        address = json_body.get("address")
+        check_exits_user = User.query.filter_by(email=email).first()
+        if check_exits_user:
+            return send_error(message='EXISTED_EMAIL')
+        roles = Role.query.filter(Role.key == 'permissionuserbasic').first()
+        # register user
+        new_user = User(
+            id=str(uuid.uuid4()),
+            created_date=get_timestamp_now(),
+            modified_date=get_timestamp_now(),
+            password_hash=generate_password_hash(password),
+            email=email,
+            address=address,
+            phone=phone,
+            full_name=full_name
+        )
+        db.session.add(new_user)
+        db.session.flush()
+        list_user_role = [UserGroupRole(id=str(uuid.uuid4()), user_id=new_user.id, role=role.id) for role in roles]
+        db.session.bulk_save_objects(list_user_role)
+        db.session.flush()
+        db.session.commit()
+        data = UserSchema().dump(new_user)
+        return send_result(data=data, message='Success')
+    except Exception as ex:
+        db.session.rollback()
+        return send_error(message=str(ex))
 
 
 @api.route('/login', methods=['POST'])
@@ -48,7 +94,7 @@ def login():
         # validate request body
         is_valid, message_id = data_preprocessing(cls_validator=AuthValidation, input_json=json_req)
         if not is_valid:
-            return send_error(message_id=message_id)
+            return send_error(message='Error')
 
         # Check username and password
         email = json_body.get("email")
@@ -163,7 +209,7 @@ def change_password_default():
             json_req = request.get_json()
         except Exception as ex:
             return send_error(message="Request Body incorrect json format: " + str(ex), code=442)
-
+        user_id = get_jwt_identity()
         # trim input body
         json_body = trim_dict(json_req)
 
@@ -174,9 +220,9 @@ def change_password_default():
             return send_error(data=is_not_validate, message='INVALID_PASSWORD')
 
         password = json_body.get("password")
-        is_admin = json_body.get("is_admin")
 
-        user = User.get_current_user()
+        user = User.query.filter(User.id == user_id)
+        is_admin = False if User.type == 1 else True
         if user is None:
             return send_error(message='NOT_FOUND_ERROR')
         user.reset_password = 1  # Flag reset password

@@ -72,6 +72,15 @@ class UserValidation(BaseValidation):
     role_ids = fields.List(fields.String(validate=validate.Length(max=50)))
 
 
+class RegisterValidation(BaseValidation):
+    full_name = fields.String(required=True,
+                              validate=[validate.Length(min=1, max=50), validate.Regexp(REGEX_FULLNAME_VIETNAMESE)])
+    email = fields.String(required=True, validate=[validate.Length(min=3, max=50), validate.Regexp(REGEX_EMAIL)])
+    password = fields.String(required=True)
+    phone = fields.String(required=True)
+    address = fields.String(required=True)
+
+
 class AuthValidation(BaseValidation):
     """
     Validator auth
@@ -122,7 +131,6 @@ class PasswordValidation(Schema):
     """
     password = fields.String(required=True,
                              validate=[validate.Length(min=1, max=16), validate.Regexp(REGEX_VALID_PASSWORD)])
-    is_admin = fields.Boolean(required=True)
 
 
 class UserParentSchema(Schema):
