@@ -8,7 +8,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
 
 from app.api.helper import Token
 from werkzeug.security import check_password_hash, generate_password_hash
-from app.models import User, Role, get_roles_key, UserGroupRole
+from app.models import User, Role, get_roles_key, UserGroupRole, Permission, RolePermission
 from app.api.helper import send_error, send_result
 from app.extensions import jwt, db
 from app.utils import trim_dict, get_timestamp_now, data_preprocessing, logged_input
@@ -304,8 +304,8 @@ def revoked_token_callback():
 # @api.route('/set-role-permission', methods=['GET'])
 # def set_role_permission():
 #     try:
-#         role = Role.query.filter(Role.key == 'permissionadminbasic').first()
-#         permissions = Permission.query.filter(Permission.key == 'permissionadminbasic').all()
+#         role = Role.query.filter(Role.key == 'permissionadminsuper').first()
+#         permissions = Permission.query.filter(Permission.key == 'permissionadminsuper').all()
 #         list_add = []
 #         for permission in permissions:
 #             role_permission = RolePermission(id=str(uuid.uuid1()), permission_id=permission.id, role_id=role.id)

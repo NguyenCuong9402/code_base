@@ -1,4 +1,3 @@
-
 import pandas as pd
 
 from flask import Blueprint, request
@@ -41,4 +40,5 @@ def upload_file():
         else:
             return send_error(message="No file uploaded.")
     except Exception as e:
+        db.session.rollback()
         return send_error(message=str(e))
