@@ -146,7 +146,7 @@ def post_group():
 
 @api.route('/<group_id>', methods=['PUT'])
 @authorization_require()
-def post_group(group_id):
+def update_group(group_id):
     try:
         user_id = get_jwt_identity()
         try:
