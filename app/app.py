@@ -1,6 +1,6 @@
 
 from .api import v1 as api_v1
-from flask import Flask, request
+from flask import Flask
 from flask_cors import CORS
 
 from .api.helper import send_result, send_error

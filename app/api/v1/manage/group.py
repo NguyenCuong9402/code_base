@@ -1,17 +1,13 @@
 import json
 from sqlalchemy_pagination import paginate
-from werkzeug.security import generate_password_hash
-
-from app.enums import ADMIN_EMAIL, ADMIN_GROUP, ADMIN_ROLE
+from app.enums import ADMIN_GROUP, ADMIN_ROLE
 from app.validator import GetGroupValidation, GroupSchema, DeleteGroupValidator, PostGroupValidator, UpdateGroupValidator
 from flask import Blueprint, request
-from flask_jwt_extended import (get_jwt_identity, get_raw_jwt, jwt_refresh_token_required, jwt_required)
-from sqlalchemy import or_, func, distinct
-from app.models import User, Group, UserGroupRole, Role, Permission
-from app.api.helper import send_error, send_result, Token
-from app.extensions import jwt, db, logger
-from app.utils import trim_dict, get_timestamp_now, data_preprocessing, REGEX_VALID_PASSWORD, REGEX_EMAIL, \
-    normalize_search_input, escape_wildcard, generate_password
+from flask_jwt_extended import get_jwt_identity
+from app.models import Group, UserGroupRole, Role
+from app.api.helper import send_error, send_result
+from app.extensions import db, logger
+from app.utils import get_timestamp_now, normalize_search_input, escape_wildcard
 from app.gateway import authorization_require
 from marshmallow import ValidationError
 import uuid

@@ -1,8 +1,7 @@
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from app.extensions import db
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy import func, distinct
+from sqlalchemy import distinct
 from sqlalchemy.dialects.mysql import INTEGER
 from app.utils import get_timestamp_now
 

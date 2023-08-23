@@ -1,18 +1,10 @@
-import json
-import uuid
-from datetime import timedelta
-from app.validator import AuthValidation, UserSchema, PasswordValidation, VerifyPasswordValidation, RegisterValidation, \
-    UserParentSchema, UpdateProfileSchema
+from app.validator import UserSchema, UpdateProfileSchema
 from flask import Blueprint, request
-from flask_jwt_extended import (create_access_token, create_refresh_token,
-                                get_jwt_identity, get_raw_jwt, jwt_refresh_token_required, jwt_required)
-
-from app.api.helper import Token
-from werkzeug.security import check_password_hash, generate_password_hash
-from app.models import User, TokenModel, Role, RolePermission, Permission, get_roles_key, Group, UserGroupRole
+from flask_jwt_extended import get_jwt_identity
+from app.models import User
 from app.api.helper import send_error, send_result
-from app.extensions import jwt, db
-from app.utils import trim_dict, get_timestamp_now, data_preprocessing, REGEX_VALID_PASSWORD, REGEX_EMAIL, logged_input
+from app.extensions import db
+from app.utils import trim_dict
 from app.gateway import authorization_require
 
 api = Blueprint('profile', __name__)

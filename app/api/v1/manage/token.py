@@ -1,9 +1,8 @@
-
 from flask import Blueprint
 from app.models import TokenModel
-from app.api.helper import send_error, send_result, Token
-from app.extensions import jwt, db, logger
-from app.utils import trim_dict, get_timestamp_now
+from app.api.helper import send_error, send_result
+from app.extensions import db
+from app.utils import get_timestamp_now
 from app.gateway import authorization_require
 
 api = Blueprint('manage/token', __name__)

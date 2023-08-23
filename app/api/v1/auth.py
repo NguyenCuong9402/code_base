@@ -8,10 +8,10 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
 
 from app.api.helper import Token
 from werkzeug.security import check_password_hash, generate_password_hash
-from app.models import User, TokenModel, Role, RolePermission, Permission, get_roles_key, Group, UserGroupRole
+from app.models import User, Role, get_roles_key, UserGroupRole
 from app.api.helper import send_error, send_result
 from app.extensions import jwt, db
-from app.utils import trim_dict, get_timestamp_now, data_preprocessing, REGEX_VALID_PASSWORD, REGEX_EMAIL, logged_input
+from app.utils import trim_dict, get_timestamp_now, data_preprocessing, logged_input
 from app.gateway import authorization_require
 
 api = Blueprint('auth', __name__)

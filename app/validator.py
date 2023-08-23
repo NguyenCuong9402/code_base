@@ -1,6 +1,4 @@
-import json
 import typing
-from datetime import date
 from app.enums import INVALID_PARAMETERS_ERROR
 from marshmallow import Schema, fields, validate, ValidationError, types, validates_schema, post_dump
 from app.utils import REGEX_EMAIL, REGEX_VALID_PASSWORD, REGEX_FULLNAME_VIETNAMESE

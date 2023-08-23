@@ -1,11 +1,9 @@
-import os
 import uuid
-from flask import jsonify, request
-from flask_jwt_extended import decode_token, get_jwt_identity
+from flask import jsonify
+from flask_jwt_extended import decode_token
 from app.utils import get_timestamp_now
-from marshmallow import ValidationError
-from app.models import Message, UserGroupRole, User, Role, TokenModel, db
-from datetime import datetime, timedelta
+from app.models import Message, TokenModel, db
+
 
 def send_result(data: any = None, message_id: str = '', message: str = "OK", code: int = 200,
                 status: str = 'success', show: bool = False, duration: int = 0,
