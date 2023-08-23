@@ -11,8 +11,20 @@ from app.utils import normalize_search_input, escape_wildcard
 from app.gateway import authorization_require
 from marshmallow import ValidationError
 import uuid
+from sqlalchemy import or_, distinct
 
 api = Blueprint('manage/role', __name__)
+
+
+@api.route('/get-key-permission', methods=['GET'])
+@authorization_require()
+def get_key_permission():
+    try:
+        unique_keys_query = db.session.query(distinct(Permission.key))
+        unique_keys = [result[0] for result in unique_keys_query.all()]
+        return send_result(data=unique_keys, message='Ok')
+    except Exception as ex:
+        return send_error(message=str(ex))
 
 
 @api.route('', methods=['GET'])
