@@ -87,11 +87,14 @@ def get_user_by_id(user_id):
         Returns:
         Examples::
     """
-    user = User.get_by_id(user_id)
-    if user is None:
-        return send_error(message='USER_NOT_EXISTED')
-    user = UserSchema().dump(user)
-    return send_result(data=user)
+    try:
+        user = User.query.filter(User.id == user_id).first()
+        if user is None:
+            return send_error(message='USER_NOT_EXISTED')
+        data = UserSchema().dump(user)
+        return send_result(data=data)
+    except Exception as ex:
+        return send_error(str(ex))
 
 
 @api.route('', methods=['POST'])
@@ -228,26 +231,6 @@ def delete_user(user_id):
     except Exception as e:
         db.session.rollback()
         return send_error(message=str(e))
-
-
-@api.route('setting', methods=['GET'])
-@authorization_require()
-def get_settings():
-    """ This api get setting of user.
-
-        Returns:
-        Examples::
-    """
-    # id of current user
-    user_id = get_jwt_identity()
-    # Query
-    user_setting = UserSetting.query.filter(UserSetting.user_id == user_id).first()
-    if user_setting is None:
-        return send_error(message="Setting does not exist")
-    # Dump data
-    user_setting = UserSettingSchema().dump(user_setting)
-
-    return send_result(data=user_setting)
 
 
 

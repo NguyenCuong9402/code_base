@@ -32,9 +32,10 @@ class User(db.Model):
 
 def get_permission_resource(user_id: str):
     query = UserGroupRole.query.filter(UserGroupRole.user_id == user_id)
-    query_role = query.filter(UserGroupRole.group_id.is_(None)).with_entities(UserGroupRole.role_id).all()
+    query_role = query.filter(UserGroupRole.group_id.is_(None)).all()
     list_role = [item.role_id for item in query_role]
-    group_ids = query.filter(UserGroupRole.role_id.is_(None)).with_entities(UserGroupRole.group_id).subquery()
+    user_groups = query.filter(UserGroupRole.role_id.is_(None)).all()
+    group_ids = [group.group_id for group in user_groups]
     group_role = UserGroupRole.query.filter(UserGroupRole.user_id.is_(None),
                                             UserGroupRole.group_id.in_(group_ids)) \
         .with_entities(UserGroupRole.role_id).all()
