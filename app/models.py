@@ -31,13 +31,11 @@ class User(db.Model):
 
 def get_permission_resource(user_id: str):
     query = UserGroupRole.query.filter(UserGroupRole.user_id == user_id)
-    query_role = query.filter(UserGroupRole.group_id.is_(None)).all()
-    list_role = [item.role_id for item in query_role]
+    user_role = query.filter(UserGroupRole.group_id.is_(None)).all()
+    list_role = [item.role_id for item in user_role]
     user_groups = query.filter(UserGroupRole.role_id.is_(None)).all()
-    group_ids = [group.group_id for group in user_groups]
-    group_role = UserGroupRole.query.filter(UserGroupRole.user_id.is_(None),
-                                            UserGroupRole.group_id.in_(group_ids)) \
-        .with_entities(UserGroupRole.role_id).all()
+    group_ids = [item.group_id for item in user_groups]
+    group_role = UserGroupRole.query.filter(UserGroupRole.user_id.is_(None), UserGroupRole.group_id.in_(group_ids)).all()
     list_role += [item.role_id for item in group_role if item.role_id not in list_role]
     resources = db.session.query(Permission.resource).join(RolePermission). \
         filter(RolePermission.role_id.in_(list_role)).all()
@@ -46,14 +44,12 @@ def get_permission_resource(user_id: str):
 
 
 def get_roles_key(user_id: str):
-    query_role = UserGroupRole.query.filter(UserGroupRole.user_id == user_id, UserGroupRole.group_id.is_(None))\
-        .with_entities(UserGroupRole.role_id).all()
-    list_role = [item.role_id for item in query_role]
-    group_ids = UserGroupRole.query.filter(UserGroupRole.user_id == user_id, UserGroupRole.role_id.is_(None))\
-        .with_entities(UserGroupRole.group_id).subquery()
-    group_role = UserGroupRole.query.filter(UserGroupRole.user_id.is_(None),
-                                            UserGroupRole.group_id.in_(group_ids)) \
-        .with_entities(UserGroupRole.role_id).all()
+    query = UserGroupRole.query.filter(UserGroupRole.user_id == user_id)
+    user_role = query.filter(UserGroupRole.group_id.is_(None)).all()
+    list_role = [item.role_id for item in user_role]
+    user_groups = query.filter(UserGroupRole.role_id.is_(None)).all()
+    group_ids = [item.group_id for item in user_groups]
+    group_role = UserGroupRole.query.filter(UserGroupRole.user_id.is_(None), UserGroupRole.group_id.in_(group_ids)).all()
     list_role += [item.role_id for item in group_role if item.role_id not in list_role]
     keys = db.session.query(distinct(Role.key)).filter(Role.id.in_(list_role)).all()
     key_list = [key[0] for key in keys]
