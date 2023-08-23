@@ -8,7 +8,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
 
 from app.api.helper import Token
 from werkzeug.security import check_password_hash, generate_password_hash
-from app.models import User, Role, get_roles_key, UserGroupRole, Permission, RolePermission
+from app.models import User, Role, get_roles_key, UserGroupRole, Permission, RolePermission, get_permission_resource
 from app.api.helper import send_error, send_result
 from app.extensions import jwt, db
 from app.utils import trim_dict, get_timestamp_now, data_preprocessing, logged_input
@@ -121,10 +121,11 @@ def login():
 
         access_token = create_access_token(identity=user.id, expires_delta=ACCESS_EXPIRES)
         refresh_token = create_refresh_token(identity=user.id, expires_delta=REFRESH_EXPIRES)
-
+        list_permission = get_permission_resource(user.id)
         # Store the tokens in our store with a status of not currently revoked.
         Token.add_token_to_database(access_token, user.id)
         Token.add_token_to_database(refresh_token, user.id)
+        Token.add_list_permission(user.id, list_permission)
 
         data: dict = UserSchema().dump(user)
         data.setdefault('access_token', access_token)

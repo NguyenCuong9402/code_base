@@ -5,6 +5,8 @@ from flask import request
 from flask_jwt_extended import (
     verify_jwt_in_request, get_jwt_claims, get_jwt_identity
 )
+
+from app.extensions import red
 from app.models import get_permission_resource
 from app.api.helper import send_error
 
@@ -27,8 +29,8 @@ def authorization_require():
 
             if claims.get("force_change_password"):
                 return send_error(message='You have to change your password before do this action')
-
-            list_permission = get_permission_resource(get_jwt_identity())
+            list_permission = pickle.loads(red.get(f"permission_{get_jwt_identity()}"))
+            # list_permission = get_permission_resource(get_jwt_identity())
             if permission_route in list_permission:
                 return fn(*args, **kwargs)
             else:

@@ -1,6 +1,7 @@
 import os
 from logging.handlers import RotatingFileHandler
 import logging
+from flask_redis import Redis
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
@@ -15,6 +16,8 @@ jwt = JWTManager()
 # init SQLAlchemy
 db = SQLAlchemy()
 migrate = Migrate()
+
+red = Redis()
 
 
 os.makedirs("logs", exist_ok=True)

@@ -15,6 +15,18 @@ services:
       - source-code-base-net
     volumes:
       - ./:/source-code-base
+  redis:
+    image: "redis:latest"
+    container_name: redis_base_stg
+    restart: always
+    environment:
+      REDIS_PASSWORD: cuong-boot-ai
+    ports:
+      - "6379:6379"
+    networks:
+      - source-code-base-net
+    volumes:
+      - redis_data:/data
   db-stg:
     image: mysql:8.0
     container_name: mysql_base_stg

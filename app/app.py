@@ -4,7 +4,7 @@ from flask import Flask
 from flask_cors import CORS
 
 from .api.helper import send_result, send_error
-from .extensions import jwt, db, migrate, CONFIG
+from .extensions import jwt, db, migrate, CONFIG, red
 
 
 def create_app(config_object=CONFIG):
@@ -33,6 +33,7 @@ def register_extensions(app):
     db.init_app(app)  # SQLAlchemy
     jwt.init_app(app)
     migrate.init_app(app, db)
+    red.init_app(app)
 
 
 def register_monitor(app):
