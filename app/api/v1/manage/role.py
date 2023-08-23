@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash
 
 from app.enums import ADMIN_EMAIL, ADMIN_ROLE
 from app.validator import UserSchema, GetUserValidation, UserValidation, UserSettingSchema, ChangeUserValidation, \
-    GetRoleValidation, RoleSchema, DeleteRoleValidator
+    GetRoleValidation, RoleSchema, DeleteRoleValidator, UpdateRoleValidator
 from flask import Blueprint, request
 from flask_jwt_extended import (get_jwt_identity, get_raw_jwt, jwt_refresh_token_required, jwt_required)
 from sqlalchemy import or_, func, distinct
@@ -22,7 +22,7 @@ api = Blueprint('manage/role', __name__)
 
 @api.route('', methods=['GET'])
 @authorization_require()
-def get_groups():
+def get_roles():
     try:
         """ This api get all groups.
             Returns:
@@ -80,7 +80,7 @@ def get_groups():
 
 @api.route('', methods=['DELETE'])
 @authorization_require()
-def remove_groups():
+def remove_roles():
     try:
         try:
             body = request.get_json()
@@ -155,6 +155,42 @@ def create_roles():
     except Exception as ex:
         db.session.rollback()
         return send_result(message=str(ex))
+
+
+@api.route('/<role_id>', methods=['PUT'])
+@authorization_require()
+def post_role(role_id):
+    try:
+        try:
+            body = request.get_json()
+            body_request = UpdateRoleValidator().load(body) if body else dict()
+        except ValidationError as err:
+            logger.error(json.dumps({
+                "message": err.messages,
+                "data": err.valid_data
+            }))
+            return send_error(message='INVALID', data=err.messages)
+        role_type = body_request.get('type', None)
+        role = Role.query.filter(Role.id == role_id)
+        for key in body_request.keys():
+            role.__setattr__(key, body_request[key])
+        if role_type is not None:
+            Permission.query.filter(Permission.role_id == role.id).delete()
+            list_method = convert_method_by_type(role_type)
+            permission_data = []
+            for item in list_method:
+                result = Permission.query.filter(Permission.key == role.key,
+                                                 Permission.resource.ilike(f'%{item}%')).all()
+                permission_data.extend(result)
+            if permission_data:
+                list_role_permission = [RolePermission(id=str(uuid.uuid1()), permission_id=permission.id,
+                                                       role_id=role.id) for permission in permission_data]
+                db.session.bulk_save_objects(list_role_permission)
+        db.session.flush()
+        db.session.commit()
+    except Exception as ex:
+        db.session.rollback()
+        return send_error(message=str(ex))
 
 
 def convert_method_by_type(role_type):

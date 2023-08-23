@@ -183,6 +183,11 @@ class DeleteRoleValidator(Schema):
     is_delete_all = fields.Boolean()
 
 
+class UpdateRoleValidator(Schema):
+    type = fields.Integer()
+    description = fields.String()
+    name = fields.String()
+
 class PostRoleValidator(Schema):
     key = fields.String(required=True)
     name = fields.String(required=True)
