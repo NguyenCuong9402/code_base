@@ -99,19 +99,6 @@ class RegisterValidation(BaseValidation):
 
 
 class AuthValidation(BaseValidation):
-    """
-    Validator auth
-    :param
-        email: string, required
-        password: string, required
-        is_admin: bool, required
-    Ex:
-    {
-        "email": "admin@boot.ai",
-        "password": "admin",
-        "is_admin": true
-    }
-    """
     email = fields.String(required=True, validate=[validate.Length(min=1, max=50), validate.Regexp(REGEX_EMAIL)])
     password = fields.String(required=True,
                              validate=[validate.Length(min=1, max=16), validate.Regexp(REGEX_VALID_PASSWORD)])
@@ -123,15 +110,7 @@ class AuthValidation(BaseValidation):
 
 
 class VerifyPasswordValidation(Schema):
-    """
-    Validator
-    :param
-        current_password: string, required
-    Ex:
-    {
-        "current_password": "12345678A?a"
-    }
-    """
+
     current_password = fields.String(required=True,
                                      validate=[validate.Length(min=1, max=16), validate.Regexp(REGEX_VALID_PASSWORD)])
 
@@ -158,15 +137,7 @@ class UpdateGroupValidator(Schema):
 
 
 class PasswordValidation(Schema):
-    """
-    Validator
-    :param
-        password: string, required
-    Ex:
-    {
-        "password": "Admin@1234"
-    }
-    """
+
     password = fields.String(required=True,
                              validate=[validate.Length(min=1, max=16), validate.Regexp(REGEX_VALID_PASSWORD)])
     current_password = fields.String(required=True,
@@ -187,6 +158,7 @@ class UpdateRoleValidator(Schema):
     type = fields.Integer()
     description = fields.String()
     name = fields.String()
+
 
 class PostRoleValidator(Schema):
     key = fields.String(required=True)
