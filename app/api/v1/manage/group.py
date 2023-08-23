@@ -3,8 +3,7 @@ from sqlalchemy_pagination import paginate
 from werkzeug.security import generate_password_hash
 
 from app.enums import ADMIN_EMAIL, ADMIN_GROUP, ADMIN_ROLE
-from app.validator import UserSchema, GetUserValidation, UserValidation, UserSettingSchema, ChangeUserValidation, \
-    GetGroupValidation, GroupSchema, DeleteGroupValidator, PostGroupValidator, UpdateGroupValidator
+from app.validator import GetGroupValidation, GroupSchema, DeleteGroupValidator, PostGroupValidator, UpdateGroupValidator
 from flask import Blueprint, request
 from flask_jwt_extended import (get_jwt_identity, get_raw_jwt, jwt_refresh_token_required, jwt_required)
 from sqlalchemy import or_, func, distinct
