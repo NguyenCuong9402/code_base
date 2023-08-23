@@ -61,16 +61,6 @@ def get_roles_key(user_id: str):
     return key_list
 
 
-class UserSetting(db.Model):
-    __tablename__ = "user_setting"
-
-    id = db.Column(db.String(50), primary_key=True)
-    display_column = db.Column(db.JSON)
-    created_date = db.Column(INTEGER(unsigned=True), default=get_timestamp_now(), index=True)  # timestamp
-    modified_date = db.Column(INTEGER(unsigned=True), default=get_timestamp_now())  # timestamp
-    user_id = db.Column(ForeignKey('user.id', ondelete='CASCADE', onupdate='CASCADE'), index=True)
-
-
 class Group(db.Model):
     __tablename__ = 'group'
 
