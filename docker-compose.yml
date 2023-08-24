@@ -19,12 +19,14 @@ services:
     image: redis:6.2-alpine
     container_name: redis_base_stg
     restart: always
+    command: ["redis-server", "/usr/local/etc/redis/redis.windows.conf"]
     environment:
-      REDIS_PASSWORD: cuong-boot-ai
+      REDIS_DB: 1
+      REDIS_PASSWORD: 'cuong-boot-ai'
     ports:
       - "6379:6379"
     volumes:
-      -  redis-data:/data/red
+      -  C:\redis\Redis-x64-3.0.504:/usr/local/etc/redis
     networks:
       - source-code-base-net
 
@@ -41,7 +43,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - db_data:/data/db
+      - db_data:/var/lib/mysql
       - ./init_db/init_mysql/init_files/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - source-code-base-net
@@ -51,4 +53,3 @@ networks:
 
 volumes:
   db_data:
-  redis-data:
