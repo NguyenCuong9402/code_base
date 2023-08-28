@@ -170,13 +170,13 @@ def update_group(group_id):
             return send_error(message='NOT FOUND GROUP')
         name = body_request.get('name', None)
         description = body_request.get('description', None)
-        roles_id = body_request.get('roles_id', [])
+        roles_id = body_request.get('roles_id', None)
 
         if name is not None:
             group.name = name
         if description is not None:
             group.description = description
-        if roles_id:
+        if roles_id is not None:
             users = get_users_id_by_group_and_role(groups_id=[group_id], roles_id=[])
             for user in users:
                 Token.revoke_all_token(user)
