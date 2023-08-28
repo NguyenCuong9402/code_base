@@ -3,6 +3,7 @@ from flask import jsonify
 from flask_jwt_extended import decode_token
 from typing import List
 import pickle
+import json
 
 from app.extensions import red
 from app.utils import get_timestamp_now
@@ -31,7 +32,7 @@ def send_result(data: any = None, message_id: str = '', message: str = "OK", cod
     json rendered sting result
     """
     message_dict = {
-        "id": message_id,
+        "message_id": message_id,
         "text": message,
         "status": status,
         "show": show,
@@ -39,8 +40,10 @@ def send_result(data: any = None, message_id: str = '', message: str = "OK", cod
         "dynamic": is_dynamic,
         "code_lang": code_lang
     }
-    message_obj: Message = Message.query.filter(Message.message_id == message_id, Message.code_lang == code_lang)
-    if message_obj:
+    # message_obj: Message = Message.query.filter(Message.message_id == message_id, Message.code_lang == code_lang)
+    message_redis = red.get(f"message:{message_id}-{code_lang}")
+    if message_redis is not None:
+        message_obj = json.loads(message_redis)
         if message_dict['dynamic'] == 0:
             message_dict['text'] = message_obj.message
         else:
@@ -77,7 +80,7 @@ def send_error(data: any = None, message_id: str = '', message: str = "Error", c
     :return:
     """
     message_dict = {
-        "id": message_id,
+        "message_id": message_id,
         "text": message,
         "status": status,
         "show": show,
@@ -85,8 +88,10 @@ def send_error(data: any = None, message_id: str = '', message: str = "Error", c
         "dynamic": is_dynamic,
         "code_lang": code_lang
     }
-    message_obj = Message.query.filter(Message.message_id == message_id, Message.code_lang == code_lang)
-    if message_obj:
+    # message_obj = Message.query.filter(Message.message_id == message_id, Message.code_lang == code_lang)
+    message_redis = red.get(f"message:{message_id}-{code_lang}")
+    if message_redis is not None:
+        message_obj = json.loads(message_redis)
         if message_dict['dynamic'] == 0:
             message_dict['text'] = message_obj.message
         else:

@@ -1,8 +1,9 @@
+import json
 
 from .api import v1 as api_v1
 from flask import Flask
 from flask_cors import CORS
-
+from .models import Message
 from .api.helper import send_result, send_error
 from .extensions import jwt, db, migrate, CONFIG, red
 
@@ -19,6 +20,7 @@ def create_app(config_object=CONFIG):
     register_monitor(app)
     register_blueprints(app)
     CORS(app, expose_headers=["Content-Disposition"])
+    add_messages_to_redis(app)
     return app
 
 
@@ -81,3 +83,21 @@ def register_blueprints(app):
     app.register_blueprint(api_v1.profile.api, url_prefix='/api/v1/profile')
 
 
+def add_messages_to_redis(app):
+    with app.app_context():
+        messages = Message.query.all()
+        for message in messages:
+            key = f"message:{message.id}-{message.code_lang}"
+            value = {
+                "id": message.id,
+                "message_id": message.message_id,
+                "show": message.show,
+                "description": message.description,
+                "duration": message.duration,
+                "status": message.status,
+                "dynamic": message.dynamic,
+                "object": message.object,
+                "message": message.message,
+                "code_lang": message.code_lang
+            }
+            red.set(key, json.dumps(value))
