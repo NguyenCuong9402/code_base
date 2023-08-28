@@ -18,7 +18,6 @@ api = Blueprint('manage/group', __name__)
 @api.route('', methods=['GET'])
 @authorization_require()
 def get_groups():
-
     try:
         """ This api get all groups.
             Returns:
