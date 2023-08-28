@@ -1,9 +1,9 @@
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
-from app.extensions import db
+from app.extensions import db, red
 from sqlalchemy import distinct
 from sqlalchemy.dialects.mysql import INTEGER
-
+import json
 from app.utils import get_timestamp_now
 
 
@@ -134,3 +134,5 @@ class Message(db.Model):
     dynamic = db.Column(db.Boolean, default=0)
     object = db.Column(db.String(255))
     code_lang = db.Column(db.String(10))
+
+

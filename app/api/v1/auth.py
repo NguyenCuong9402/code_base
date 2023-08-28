@@ -66,7 +66,7 @@ def register():
         return send_result(data=data, message='Success', message_id=MESSAGE_ID, code_lang=code_lang)
     except Exception as ex:
         db.session.rollback()
-        return send_error(message=str(ex), message_id=MESSAGE_ID, code_lang=code_lang)
+        return send_error(message=str(ex))
 
 
 @api.route('/login', methods=['POST'])
