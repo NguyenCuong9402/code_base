@@ -40,8 +40,7 @@ def upload_file():
             db.session.commit()
             return send_result(message="File uploaded and data imported successfully.", code_lang=code_lang,
                                message_id=MESSAGE_ID)
-        else:
-            return send_error(message="No file uploaded.")
+        return send_error(message="No file uploaded.")
     except Exception as e:
         db.session.rollback()
         return send_error(message=str(e))
@@ -79,8 +78,7 @@ def upload_file_message():
             db.session.commit()
             return send_result(message="File uploaded and data imported successfully.", code_lang=code_lang,
                                message_id=MESSAGE_ID)
-        else:
-            return send_error(message="No file uploaded.")
+        return send_error(message="No file uploaded.", code_lang=code_lang, message_id=MESSAGE_ID)
     except Exception as e:
         db.session.rollback()
         return send_error(message=str(e))
