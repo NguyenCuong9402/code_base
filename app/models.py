@@ -36,7 +36,8 @@ def get_permission_resource(user_id: str):
     list_role = [item.role_id for item in user_role]
     user_groups = query.filter(UserGroupRole.role_id.is_(None)).all()
     group_ids = [item.group_id for item in user_groups]
-    group_role = UserGroupRole.query.filter(UserGroupRole.user_id.is_(None), UserGroupRole.group_id.in_(group_ids)).all()
+    group_role = UserGroupRole.query.filter(UserGroupRole.user_id.is_(None),
+                                            UserGroupRole.group_id.in_(group_ids)).all()
     list_role += [item.role_id for item in group_role if item.role_id not in list_role]
     resources = db.session.query(Permission.resource).join(RolePermission). \
         filter(RolePermission.role_id.in_(list_role)).all()
@@ -50,7 +51,8 @@ def get_roles_key(user_id: str):
     list_role = [item.role_id for item in user_role]
     user_groups = query.filter(UserGroupRole.role_id.is_(None)).all()
     group_ids = [item.group_id for item in user_groups]
-    group_role = UserGroupRole.query.filter(UserGroupRole.user_id.is_(None), UserGroupRole.group_id.in_(group_ids)).all()
+    group_role = UserGroupRole.query.filter(UserGroupRole.user_id.is_(None),
+                                            UserGroupRole.group_id.in_(group_ids)).all()
     list_role += [item.role_id for item in group_role if item.role_id not in list_role]
     keys = db.session.query(distinct(Role.key)).filter(Role.id.in_(list_role)).all()
     key_list = [key[0] for key in keys]
@@ -114,8 +116,9 @@ class UserGroupRole(db.Model):
 
     id = db.Column(db.String(50), primary_key=True)
     user_id = db.Column(db.String(50), db.ForeignKey('user.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=True)
-    group_id = db.Column(db.String(50), db.ForeignKey('group.id', ondelete='CASCADE', onupdate='CASCADE'),  nullable=True)
-    role_id = db.Column(db.String(50), db.ForeignKey('role.id', ondelete='CASCADE', onupdate='CASCADE'),  nullable=True)
+    group_id = db.Column(db.String(50), db.ForeignKey('group.id', ondelete='CASCADE', onupdate='CASCADE'),
+                         nullable=True)
+    role_id = db.Column(db.String(50), db.ForeignKey('role.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=True)
 
 
 class Message(db.Model):
@@ -129,3 +132,4 @@ class Message(db.Model):
     message = db.Column(db.String(500), nullable=False)
     dynamic = db.Column(db.Boolean, default=0)
     object = db.Column(db.String(255))
+    code_lang = db.Column(db.String(10))
