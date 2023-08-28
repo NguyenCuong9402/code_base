@@ -131,7 +131,7 @@ class PostGroupValidator(Schema):
 class UpdateGroupValidator(Schema):
     name = fields.String()
     description = fields.String()
-    role_ids = fields.List(fields.String(), required=True)
+    role_ids = fields.List(fields.String())
 
 
 class PasswordValidation(Schema):

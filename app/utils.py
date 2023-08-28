@@ -1,7 +1,7 @@
 from time import time, strftime
 import string
 import random
-
+from app.models import UserGroupRole
 from .enums import TIME_FORMAT_LOG
 from .extensions import logger
 import urllib.parse
@@ -84,6 +84,19 @@ def escape_wildcard(search):
     search5 = str.replace(search4, r'"', r'\"')
     search6 = str.replace(search5, r"'", r"\'")
     return search6
+
+
+def get_users_id_by_group_and_role(groups_id: list, roles_id: list):
+    users_id = []
+    if groups_id:
+        query_users_group = UserGroupRole.query.filter(UserGroupRole.group_id.in_(groups_id),
+                                                       UserGroupRole.role_id.is_(None)).all()
+        users_id += [user.user_id for user in query_users_group]
+    if roles_id:
+        query_users_role = UserGroupRole.query.filter(UserGroupRole.role_id.in_(roles_id),
+                                                      UserGroupRole.group_id.is_(None)).all()
+        users_id += [user.user_id for user in query_users_role]
+    return users_id
 
 
 def trim_dict(input_dict: dict) -> dict:

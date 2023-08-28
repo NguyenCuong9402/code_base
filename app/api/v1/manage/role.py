@@ -5,9 +5,9 @@ from app.validator import GetRoleValidation, RoleSchema, DeleteRoleValidator, Up
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
 from app.models import Group, Role, Permission, RolePermission
-from app.api.helper import send_error, send_result
+from app.api.helper import send_error, send_result, Token
 from app.extensions import db, logger
-from app.utils import normalize_search_input, escape_wildcard
+from app.utils import normalize_search_input, escape_wildcard, get_users_id_by_group_and_role
 from app.gateway import authorization_require
 from marshmallow import ValidationError
 import uuid
@@ -99,11 +99,22 @@ def remove_roles():
             }))
             return send_error(message='INVALID', data=err.messages)
 
-        role_ids = body_request.get('role_ids', [])
+        roles_id = body_request.get('roles_id', [])
         is_delete_all = body_request.get('is_delete_all', False)
-        Role.query.filter(Role.id.in_(role_ids), Group.key != ADMIN_ROLE).delete() if is_delete_all \
-            else Role.query.filter(Role.id.notin_(role_ids), Group.key != ADMIN_ROLE).delete()
+
+        if is_delete_all:
+            users_id = get_users_id_by_group_and_role(groups_id=[], roles_id=roles_id)
+            Role.query.filter(Role.id.in_(roles_id), Group.key != ADMIN_ROLE).delete()
+        else:
+            query_role = Role.query.filter(Role.id.notin_(roles_id), Group.key != ADMIN_ROLE)
+            roles_id_to_delete = [role.id for role in query_role.all()]
+            users_id = get_users_id_by_group_and_role(groups_id=[], roles_id=roles_id_to_delete)
+            query_role.delete()
         db.session.flush()
+        # Clear token
+        for user_id in users_id:
+            Token.revoke_all_token(user_id)
+
         db.session.commit()
         return send_result(message='Remove success!')
     except Exception as ex:
@@ -166,7 +177,7 @@ def create_roles():
 
 @api.route('/<role_id>', methods=['PUT'])
 @authorization_require()
-def post_role(role_id):
+def update_role(role_id):
     try:
         try:
             body = request.get_json()
@@ -181,7 +192,7 @@ def post_role(role_id):
         role = Role.query.filter(Role.id == role_id)
         for key in body_request.keys():
             role.__setattr__(key, body_request[key])
-        if role_type is not None:
+        if role_type is not None and role_type != role.type:
             Permission.query.filter(Permission.role_id == role.id).delete()
             list_method = convert_method_by_type(role_type)
             permission_data = []
@@ -193,6 +204,10 @@ def post_role(role_id):
                 list_role_permission = [RolePermission(id=str(uuid.uuid1()), permission_id=permission.id,
                                                        role_id=role.id) for permission in permission_data]
                 db.session.bulk_save_objects(list_role_permission)
+            users_id = get_users_id_by_group_and_role(groups_id=[], roles_id=[role.id])
+            # Clear token
+            for user_id in users_id:
+                Token.revoke_all_token(user_id)
         db.session.flush()
         db.session.commit()
     except Exception as ex:

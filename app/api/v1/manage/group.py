@@ -5,9 +5,9 @@ from app.validator import GetGroupValidation, GroupSchema, DeleteGroupValidator,
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
 from app.models import Group, UserGroupRole, Role
-from app.api.helper import send_error, send_result
+from app.api.helper import send_error, send_result, Token
 from app.extensions import db, logger
-from app.utils import get_timestamp_now, normalize_search_input, escape_wildcard
+from app.utils import get_timestamp_now, normalize_search_input, escape_wildcard, get_users_id_by_group_and_role
 from app.gateway import authorization_require
 from marshmallow import ValidationError
 import uuid
@@ -86,10 +86,22 @@ def remove_groups():
                 "data": err.valid_data
             }))
             return send_error(message='INVALID', data=err.messages)
-        group_ids = body_request.get('group_ids', [])
+        groups_id = body_request.get('groups_id', [])
         is_delete_all = body_request.get('is_delete_all', False)
-        Group.query.filter(Group.id.in_(group_ids), Group.key != ADMIN_GROUP).delete() if is_delete_all \
-            else Group.query.filter(Group.id.notin_(group_ids), Group.key != ADMIN_GROUP).delete()
+        if is_delete_all:
+            users_id = get_users_id_by_group_and_role(groups_id=groups_id, roles_id=[])
+            Group.query.filter(Group.id.in_(groups_id), Group.key != ADMIN_GROUP).delete()
+
+        else:
+            query_group = Group.query.filter(Group.id.notin_(groups_id), Group.key != ADMIN_GROUP)
+            groups_id_to_delete = [role.id for role in query_group.all()]
+
+            users_id = get_users_id_by_group_and_role(groups_id=groups_id_to_delete, roles_id=[])
+            query_group.delete()
+
+        # clear token
+        for user_id in users_id:
+            Token.revoke_all_token(user_id)
         db.session.flush()
         db.session.commit()
         return send_result(message='Remove success!')
@@ -153,27 +165,29 @@ def update_group(group_id):
                 "data": err.valid_data
             }))
             return send_error(message='INVALID', data=err.messages)
-        name = body_request.get('name', None)
-        description = body_request.get('description', None)
         group = Group.query.filter(Group.id == group_id, Group.key != ADMIN_GROUP).first()
         if group is None:
             return send_error(message='NOT FOUND GROUP')
+        name = body_request.get('name', None)
+        description = body_request.get('description', None)
+        roles_id = body_request.get('roles_id', [])
+
         if name is not None:
             group.name = name
         if description is not None:
             group.description = description
+        if roles_id:
+            users = get_users_id_by_group_and_role(groups_id=[group_id], roles_id=[])
+            for user in users:
+                Token.revoke_all_token(user)
+            UserGroupRole.query.filter(UserGroupRole.group_id == group.id, UserGroupRole.user_id.is_(None)).delete()
+            roles = Role.query.filter(Role.key != ADMIN_ROLE, Role.id.in_(roles_id)).all()
+            list_group_role = [UserGroupRole(id=str(uuid.uuid4()), group_id=group.id, role_id=role.id) for role in roles]
+            db.session.bulk_save_objects(list_group_role)
+            db.session.flush()
         group.last_modified_user = user_id
         group.modified_date = get_timestamp_now()
         db.session.flush()
-
-        UserGroupRole.query.filter(UserGroupRole.group_id == group.id, UserGroupRole.user_id.is_(None)).delete()
-
-        role_ids = body_request.get('role_ids', [])
-        roles = Role.query.filter(Role.key != ADMIN_ROLE, Role.id.in_(role_ids)).all()
-        list_group_role = [UserGroupRole(id=str(uuid.uuid4()), group_id=group.id, role_id=role.id) for role in roles]
-        db.session.bulk_save_objects(list_group_role)
-        db.session.flush()
-
         db.session.commit()
         return send_result(message='Update success!')
     except Exception as ex:

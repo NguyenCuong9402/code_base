@@ -201,7 +201,8 @@ def put_user(user_id):
                                groups]
             db.session.bulk_save_objects(list_user_group)
             db.session.flush()
-
+            # logout
+            Token.revoke_all_token(user.id)
         if role_ids is not None:
             UserGroupRole.query.filter(UserGroupRole.user_id == user_id, UserGroupRole.group_id.is_(None)).delete()
 
@@ -209,6 +210,8 @@ def put_user(user_id):
             list_user_role = [UserGroupRole(id=str(uuid.uuid4()), user_id=user_id, role_id=role.id) for role in roles]
             db.session.bulk_save_objects(list_user_role)
             db.session.flush()
+            # logout
+            Token.revoke_all_token(user.id)
         user.last_modified_user_id = get_jwt_identity()
         db.session.commit()
         return send_result(message='CHANGE_SUCCESS')
