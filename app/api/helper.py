@@ -39,7 +39,7 @@ def send_result(data: any = None, message_id: str = '', message: str = "OK", cod
         "dynamic": is_dynamic,
         "code_lang": code_lang
     }
-    message_obj: Message = Message.query.filter(Message.id == message_id, Message.code_lang == code_lang)
+    message_obj: Message = Message.query.filter(Message.message_id == message_id, Message.code_lang == code_lang)
     if message_obj:
         if message_dict['dynamic'] == 0:
             message_dict['text'] = message_obj.message
@@ -85,7 +85,7 @@ def send_error(data: any = None, message_id: str = '', message: str = "Error", c
         "dynamic": is_dynamic,
         "code_lang": code_lang
     }
-    message_obj = Message.query.filter(Message.id == message_id, Message.code_lang == code_lang)
+    message_obj = Message.query.filter(Message.message_id == message_id, Message.code_lang == code_lang)
     if message_obj:
         if message_dict['dynamic'] == 0:
             message_dict['text'] = message_obj.message
