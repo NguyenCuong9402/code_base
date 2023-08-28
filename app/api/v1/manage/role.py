@@ -1,5 +1,7 @@
 import json
 from sqlalchemy_pagination import paginate
+
+from app.api.v1.manage.group import get_users_id_by_group_and_role
 from app.enums import ADMIN_ROLE
 from app.validator import GetRoleValidation, RoleSchema, DeleteRoleValidator, UpdateRoleValidator
 from flask import Blueprint, request
@@ -7,7 +9,7 @@ from flask_jwt_extended import get_jwt_identity
 from app.models import Group, Role, Permission, RolePermission
 from app.api.helper import send_error, send_result, Token
 from app.extensions import db, logger
-from app.utils import normalize_search_input, escape_wildcard, get_users_id_by_group_and_role
+from app.utils import normalize_search_input, escape_wildcard
 from app.gateway import authorization_require
 from marshmallow import ValidationError
 import uuid

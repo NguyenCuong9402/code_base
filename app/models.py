@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from app.extensions import db
 from sqlalchemy import distinct
 from sqlalchemy.dialects.mysql import INTEGER
+
 from app.utils import get_timestamp_now
 
 

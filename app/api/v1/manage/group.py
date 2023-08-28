@@ -7,7 +7,7 @@ from flask_jwt_extended import get_jwt_identity
 from app.models import Group, UserGroupRole, Role
 from app.api.helper import send_error, send_result, Token
 from app.extensions import db, logger
-from app.utils import get_timestamp_now, normalize_search_input, escape_wildcard, get_users_id_by_group_and_role
+from app.utils import get_timestamp_now, normalize_search_input, escape_wildcard
 from app.gateway import authorization_require
 from marshmallow import ValidationError
 import uuid
@@ -193,3 +193,16 @@ def update_group(group_id):
     except Exception as ex:
         db.session.rollback()
         return send_error(message=str(ex))
+
+
+def get_users_id_by_group_and_role(groups_id: list, roles_id: list):
+    users_id = []
+    if groups_id:
+        query_users_group = UserGroupRole.query.filter(UserGroupRole.group_id.in_(groups_id),
+                                                       UserGroupRole.role_id.is_(None)).all()
+        users_id += [user.user_id for user in query_users_group]
+    if roles_id:
+        query_users_role = UserGroupRole.query.filter(UserGroupRole.role_id.in_(roles_id),
+                                                      UserGroupRole.group_id.is_(None)).all()
+        users_id += [user.user_id for user in query_users_role]
+    return users_id
