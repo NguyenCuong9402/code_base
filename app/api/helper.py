@@ -6,7 +6,7 @@ import pickle
 
 from app.extensions import red
 from app.utils import get_timestamp_now
-from app.models import Message, TokenModel, db
+from app.models import Message, db
 
 
 def send_result(data: any = None, message_id: str = '', message: str = "OK", code: int = 200,

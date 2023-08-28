@@ -73,7 +73,6 @@ def register_blueprints(app):
     """
     # Management
     app.register_blueprint(api_v1.manage.user.api, url_prefix='/api/v1/manage/user')
-    app.register_blueprint(api_v1.manage.token.api, url_prefix='/api/v1/manage/token')
     app.register_blueprint(api_v1.manage.import_file.api, url_prefix='/api/v1/manage/import_file')
     app.register_blueprint(api_v1.manage.group.api, url_prefix='/api/v1/manage/group')
     app.register_blueprint(api_v1.manage.role.api, url_prefix='/api/v1/manage/role')

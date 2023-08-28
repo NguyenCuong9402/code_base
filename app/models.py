@@ -117,15 +117,6 @@ class UserGroupRole(db.Model):
     role_id = db.Column(db.String(50), db.ForeignKey('role.id', ondelete='CASCADE', onupdate='CASCADE'),  nullable=True)
 
 
-class TokenModel(db.Model):
-    __tablename__ = 'token'
-    id = db.Column(db.String(50), primary_key=True)
-    user_id = db.Column(db.String(50), db.ForeignKey('user.id'), primary_key=True, nullable=False)
-    jti = db.Column(db.String(200))
-    encoded_token = db.Column(db.Text)
-    expires = db.Column(db.Integer)
-
-
 class Message(db.Model):
     __tablename__ = 'message'
 

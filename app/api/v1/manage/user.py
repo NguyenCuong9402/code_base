@@ -152,7 +152,8 @@ def create_user():
             type=2,
             created_user_id=user_create_id,
             last_modified_user_id=user_create_id,
-            status=json_req['status']
+            status=json_req['status'],
+            force_change_password=1
         )
         db.session.add(new_user)
 

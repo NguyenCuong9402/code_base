@@ -119,8 +119,10 @@ def login():
         if not user.status:
             return send_error(message='INACTIVE_ACCOUNT_ERROR')
 
-        access_token = create_access_token(identity=user.id, expires_delta=ACCESS_EXPIRES)
-        refresh_token = create_refresh_token(identity=user.id, expires_delta=REFRESH_EXPIRES)
+        access_token = create_access_token(identity=user.id, expires_delta=ACCESS_EXPIRES,
+                                           user_claims={"force_change_password": user.force_change_password})
+        refresh_token = create_refresh_token(identity=user.id, expires_delta=REFRESH_EXPIRES,
+                                             user_claims={"force_change_password": user.force_change_password})
         list_permission = get_permission_resource(user.id)
         # Store the tokens in our store with a status of not currently revoked.
         Token.add_token_to_database(access_token, user.id)
