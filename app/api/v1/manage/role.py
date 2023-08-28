@@ -2,7 +2,7 @@ import json
 from sqlalchemy_pagination import paginate
 
 from app.api.v1.manage.group import get_users_id_by_group_and_role
-from app.enums import ADMIN_ROLE
+from app.enums import ADMIN_ROLE, MESSAGE_ID
 from app.validator import GetRoleValidation, RoleSchema, DeleteRoleValidator, UpdateRoleValidator
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
@@ -91,6 +91,8 @@ def get_roles():
 @authorization_require()
 def remove_roles():
     try:
+        code_lang = request.args.get('code_lang', 'EN')
+
         try:
             body = request.get_json()
             body_request = DeleteRoleValidator().load(body) if body else dict()
@@ -118,7 +120,7 @@ def remove_roles():
             Token.revoke_all_token(user_id)
 
         db.session.commit()
-        return send_result(message='Remove success!')
+        return send_result(message='Remove success!', code_lang=code_lang, message_id=MESSAGE_ID)
     except Exception as ex:
         db.session.rollback()
         return send_error(message=str(ex))
@@ -128,6 +130,8 @@ def remove_roles():
 @authorization_require()
 def create_roles():
     try:
+        code_lang = request.args.get('code_lang', 'EN')
+
         try:
             body = request.get_json()
             body_request = DeleteRoleValidator().load(body) if body else dict()
@@ -140,11 +144,11 @@ def create_roles():
         key = body_request.get('key')
         check_key = Permission.query.filter(Permission.key == key, Permission.key != ADMIN_ROLE)
         if check_key is None:
-            return send_error(message='Key does not exist!')
+            return send_error(message='Key does not exist!', code_lang=code_lang, message_id=MESSAGE_ID)
         name = body_request.get('name')
         check_name = Role.query.filter(Role.name == name)
         if check_name is not None:
-            return send_error(message='Name already exists')
+            return send_error(message='Name already exists', code_lang=code_lang, message_id=MESSAGE_ID)
         description = body_request.get('description', '')
         role = Role(
             id=str(uuid.uuid4()),
@@ -171,7 +175,7 @@ def create_roles():
 
         db.session.flush()
         db.session.commit()
-        return send_result(message='Created success!')
+        return send_result(message='Created success!', message_id=MESSAGE_ID, code_lang=code_lang)
     except Exception as ex:
         db.session.rollback()
         return send_result(message=str(ex))
@@ -181,6 +185,7 @@ def create_roles():
 @authorization_require()
 def update_role(role_id):
     try:
+        code_lang = request.args.get('code_lang', 'EN')
         try:
             body = request.get_json()
             body_request = UpdateRoleValidator().load(body) if body else dict()
@@ -212,6 +217,7 @@ def update_role(role_id):
                 Token.revoke_all_token(user_id)
         db.session.flush()
         db.session.commit()
+        return send_result(code_lang=code_lang, message_id=MESSAGE_ID, message='Success')
     except Exception as ex:
         db.session.rollback()
         return send_error(message=str(ex))

@@ -1,6 +1,8 @@
 import json
 import uuid
 from datetime import timedelta
+
+from app.enums import MESSAGE_ID
 from app.validator import AuthValidation, UserSchema, PasswordValidation, VerifyPasswordValidation, RegisterValidation
 from flask import Blueprint, request
 from flask_jwt_extended import (create_access_token, create_refresh_token,
@@ -26,6 +28,8 @@ def register():
             json_req = request.get_json()
         except Exception as ex:
             return send_error(message="Request Body incorrect json format: " + str(ex), code=442)
+        code_lang = request.args.get('code_lang', 'EN')
+
         # trim input body
         json_body = trim_dict(json_req)
         # validate request body
@@ -59,10 +63,10 @@ def register():
         db.session.flush()
         db.session.commit()
         data = UserSchema().dump(new_user)
-        return send_result(data=data, message='Success')
+        return send_result(data=data, message='Success', message_id=MESSAGE_ID, code_lang=code_lang)
     except Exception as ex:
         db.session.rollback()
-        return send_error(message=str(ex))
+        return send_error(message=str(ex), message_id=MESSAGE_ID, code_lang=code_lang)
 
 
 @api.route('/login', methods=['POST'])
@@ -87,6 +91,7 @@ def login():
             json_req = request.get_json()
         except Exception as ex:
             return send_error(message="Request Body incorrect json format: " + str(ex), code=442)
+        code_lang = request.args.get('code_lang', 'EN')
 
         # trim input body
         json_body = trim_dict(json_req)
@@ -94,7 +99,7 @@ def login():
         # validate request body
         is_valid, message_id = data_preprocessing(cls_validator=AuthValidation, input_json=json_req)
         if not is_valid:
-            return send_error(message='Error')
+            return send_error(message='Error', message_id=MESSAGE_ID, code_lang=code_lang)
 
         # Check username and password
         email = json_body.get("email")
@@ -103,7 +108,7 @@ def login():
 
         user = User.query.filter(User.email == email).first()
         if user is None or (password and not check_password_hash(user.password_hash, password)):
-            return send_error(message='Fail')
+            return send_error(message='Fail', message_id=MESSAGE_ID, code_lang=code_lang)
         roles = get_roles_key(user.id)
         # Check permission login (from user/admin side?)
         is_authorized = False
@@ -114,10 +119,10 @@ def login():
             if 'permissionuserbasic' in roles:
                 is_authorized = True
         if not is_authorized:
-            return send_error(message='YOU_DO_NOT_HAVE_PERMISSION')
+            return send_error(message='YOU_DO_NOT_HAVE_PERMISSION', message_id=MESSAGE_ID, code_lang=code_lang)
 
         if not user.status:
-            return send_error(message='INACTIVE_ACCOUNT_ERROR')
+            return send_error(message='INACTIVE_ACCOUNT_ERROR', message_id=MESSAGE_ID, code_lang=code_lang)
 
         access_token = create_access_token(identity=user.id, expires_delta=ACCESS_EXPIRES,
                                            user_claims={"force_change_password": user.force_change_password})
@@ -133,7 +138,7 @@ def login():
         data.setdefault('access_token', access_token)
         data.setdefault('refresh_token', refresh_token)
 
-        return send_result(data=data)
+        return send_result(data=data, message_id=MESSAGE_ID, code_lang=code_lang)
     except Exception as ex:
         db.session.rollback()
         return send_error(message=str(ex))
@@ -158,7 +163,7 @@ def refresh():
     Examples::
 
     """
-
+    code_lang = request.args.get('code_lang', 'EN')
     user_identity = get_jwt_identity()
     user = User.query.filter_by(id=user_identity).first()
 
@@ -172,7 +177,7 @@ def refresh():
         'access_token': access_token
     }
 
-    return send_result(data=data)
+    return send_result(data=data, message_id=MESSAGE_ID, code_lang=code_lang)
 
 
 @api.route('/logout', methods=['DELETE'])
@@ -185,10 +190,11 @@ def logout():
 
     """
     try:
+        code_lang = request.args.get('code_lang', 'EN')
         jti = get_raw_jwt()['jti']
         Token.revoke_token(jti)  # revoke current token from database
 
-        return send_result(message="Logout successfully!")
+        return send_result(message="Logout successfully!", message_id=MESSAGE_ID,code_lang=code_lang)
     except Exception as ex:
         db.session.rollback()
         return send_error(str(ex))
@@ -208,10 +214,13 @@ def change_password():
         }
     """
     try:
+        code_lang = request.args.get('code_lang', 'EN')
+
         try:
             json_req = request.get_json()
         except Exception as ex:
-            return send_error(message="Request Body incorrect json format: " + str(ex), code=442)
+            return send_error(message="Request Body incorrect json format: " + str(ex), code=442,
+                              code_lang=code_lang, message_id=MESSAGE_ID)
         user_id = get_jwt_identity()
         # trim input body
         json_body = trim_dict(json_req)
@@ -239,7 +248,7 @@ def change_password():
         message = 'CHANGE_DEFAULT_PASS_SUCCESS' if is_admin else 'CHANGE_DEFAULT_PASS_SUCCESS_USER_SITE'
         # revoke all token of current user  from database
         Token.revoke_all_token(user_id)
-        return send_result(data=UserSchema().dump(user), message=message)
+        return send_result(data=UserSchema().dump(user), message=message, message_id=MESSAGE_ID, code_lang=code_lang)
     except Exception as ex:
         db.session.rollback()
         return send_error(str(ex))
@@ -257,6 +266,8 @@ def verify_password():
         Examples::
 
     """
+    code_lang = request.args.get('code_lang', 'EN')
+
     user = User.query.filter(User.id == get_jwt_identity()).first()
     try:
         json_req = request.get_json()
@@ -270,14 +281,14 @@ def verify_password():
     validator_input = VerifyPasswordValidation()
     is_not_validate = validator_input.validate(json_req)
     if is_not_validate:
-        return send_error(data=is_not_validate, message='INVALID_PASSWORD')
+        return send_error(data=is_not_validate, message='INVALID_PASSWORD', code_lang=code_lang, message_id=MESSAGE_ID)
 
     current_password = json_req.get("current_password")
 
     if not check_password_hash(user.password_hash, current_password):
-        return send_error(message='INCORRECT_PASSWORD')
+        return send_error(message='INCORRECT_PASSWORD', message_id=MESSAGE_ID, code_lang=code_lang)
 
-    return send_result(data={})
+    return send_result(data={}, message_id=MESSAGE_ID, code_lang=code_lang)
 
 
 @jwt.token_in_blacklist_loader

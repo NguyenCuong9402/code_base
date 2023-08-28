@@ -2,7 +2,7 @@ import json
 from sqlalchemy_pagination import paginate
 from werkzeug.security import generate_password_hash
 
-from app.enums import ADMIN_EMAIL, ADMIN_GROUP, ADMIN_ROLE
+from app.enums import ADMIN_EMAIL, ADMIN_GROUP, ADMIN_ROLE, MESSAGE_ID
 from app.validator import UserSchema, GetUserValidation, UserValidation, ChangeUserValidation
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
@@ -100,28 +100,8 @@ def get_user_by_id(user_id):
 @api.route('', methods=['POST'])
 @authorization_require()
 def create_user():
-    """ This is api for the user management registers user admin.
-
-        Request Body:
-
-        Returns:
-
-        Input Examples:
-        {
-            "full_name": "Nguyễn Hữu Tiến",
-            "email": "test6@gmail.com",
-            "academic_rank": 1,
-            "degree": 1,
-            "regency": 3,
-            "is_party_committee": 1,
-            "is_faculty_office": 1,
-            "role_party_committee": 1,
-            "status": 1,
-            "group_id": "6d9fd6ee-2461-11ec-9621-0242ac160001",
-            "department_id": "1"
-        }
-    """
     try:
+        code_lang = request.args.get('code_lang', 'EN')
         try:
             json_req = request.get_json()
             user_create_id = get_jwt_identity()
@@ -135,7 +115,7 @@ def create_user():
         check_exits_user = User.query.filter_by(email=json_req["email"]).first()
 
         if check_exits_user:
-            return send_error(message='EXISTED_EMAIL')
+            return send_error(message='EXISTED_EMAIL', message_id=message_id, code_lang=code_lang)
 
         groups = Group.query.filter(Group.id.in_(json_req.get("group_ids", []))).all()
         roles = Role.query.filter(Role.id.in_(json_req.get("role_ids", []))).all()
@@ -165,7 +145,7 @@ def create_user():
         db.session.commit()
         data = UserSchema().dump(new_user)
         data['password'] = password
-        return send_result(data=data, message='Success')
+        return send_result(data=data, message='Success', code_lang=code_lang, message_id=MESSAGE_ID)
     except Exception as e:
         db.session.rollback()
         return send_error(message=str(e))
@@ -175,6 +155,8 @@ def create_user():
 @authorization_require()
 def put_user(user_id):
     try:
+        code_lang = request.args.get('code_lang', 'EN')
+
         try:
             json_req = request.get_json()
         except Exception as ex:
@@ -214,7 +196,7 @@ def put_user(user_id):
             Token.revoke_all_token(user.id)
         user.last_modified_user_id = get_jwt_identity()
         db.session.commit()
-        return send_result(message='CHANGE_SUCCESS')
+        return send_result(message='CHANGE_SUCCESS', message_id=MESSAGE_ID, code_lang=code_lang)
     except Exception as e:
         db.session.rollback()
         return send_error(message=str(e))
@@ -224,6 +206,8 @@ def put_user(user_id):
 @authorization_require()
 def delete_user(user_id):
     try:
+        code_lang = request.args.get('code_lang', 'EN')
+
         user = User.query.filter(User.id == user_id, User.type != 3)
         if user is None:
             return send_error(message='NOT FOUND USER')
@@ -231,7 +215,7 @@ def delete_user(user_id):
         db.session.commit()
         # revoke all token of reset user  from database
         Token.revoke_all_token(user_id)
-        return send_result(message='DELETE_SUCCESS')
+        return send_result(message='DELETE_SUCCESS', message_id=MESSAGE_ID, code_lang=code_lang)
     except Exception as e:
         db.session.rollback()
         return send_error(message=str(e))

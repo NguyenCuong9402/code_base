@@ -10,7 +10,7 @@ from app.models import Message, db
 
 
 def send_result(data: any = None, message_id: str = '', message: str = "OK", code: int = 200,
-                status: str = 'success', show: bool = False, duration: int = 0,
+                status: str = 'success', show: bool = False, duration: int = 0, code_lang :str = 'EN',
                 val_error: dict = {}, is_dynamic: bool = False):
     """
     Args:
@@ -25,6 +25,8 @@ def send_result(data: any = None, message_id: str = '', message: str = "OK", cod
     :param status:
     :param show:
     :param duration:
+    :param code_lang:
+
     :return:
     json rendered sting result
     """
@@ -34,9 +36,10 @@ def send_result(data: any = None, message_id: str = '', message: str = "OK", cod
         "status": status,
         "show": show,
         "duration": duration,
-        "dynamic": is_dynamic
+        "dynamic": is_dynamic,
+        "code_lang": code_lang
     }
-    message_obj: Message = Message.query.get(message_id)
+    message_obj: Message = Message.query.filter(Message.id == message_id, Message.code_lang == code_lang)
     if message_obj:
         if message_dict['dynamic'] == 0:
             message_dict['text'] = message_obj.message
@@ -59,8 +62,8 @@ def send_result(data: any = None, message_id: str = '', message: str = "OK", cod
 
 
 def send_error(data: any = None, message_id: str = '', message: str = "Error", code: int = 200,
-               status: str = 'error', show: bool = False, duration: int = 0,
-               val_error: dict = {}, is_dynamic: bool = False):
+               status: str = 'error', show: bool = False, duration: int = 0, val_error: dict = {},
+               is_dynamic: bool = False, code_lang: str = 'EN'):
     """
 
     :param data:
@@ -70,6 +73,7 @@ def send_error(data: any = None, message_id: str = '', message: str = "Error", c
     :param status:
     :param show:
     :param duration:
+    :param code_lang:
     :return:
     """
     message_dict = {
@@ -78,9 +82,10 @@ def send_error(data: any = None, message_id: str = '', message: str = "Error", c
         "status": status,
         "show": show,
         "duration": duration,
-        "dynamic": is_dynamic
+        "dynamic": is_dynamic,
+        "code_lang": code_lang
     }
-    message_obj = Message.query.get(message_id)
+    message_obj = Message.query.filter(Message.id == message_id, Message.code_lang == code_lang)
     if message_obj:
         if message_dict['dynamic'] == 0:
             message_dict['text'] = message_obj.message

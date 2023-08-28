@@ -1,3 +1,4 @@
+from app.enums import MESSAGE_ID
 from app.validator import UserSchema, UpdateProfileSchema
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
@@ -26,6 +27,7 @@ def get_profile():
 @authorization_require()
 def change_profile():
     try:
+        code_lang = request.args.get('code_lang', 'EN')
         user_id = get_jwt_identity()
         user = User.query.filter_by(id=user_id).first()
         try:
@@ -38,9 +40,10 @@ def change_profile():
         validator_input = UpdateProfileSchema()
         is_not_validate = validator_input.validate(json_body)
         if is_not_validate:
-            return send_error(data=is_not_validate, message='INVALID_PASSWORD')
+            return send_error(data=is_not_validate, message='INVALID_PASSWORD', code_lang=code_lang,
+                              message_id=MESSAGE_ID)
         if user is None:
-            return send_error(message='NOT_FOUND_ERROR')
+            return send_error(message='NOT_FOUND_ERROR', code_lang=code_lang, message_id=MESSAGE_ID)
         for key in json_req.keys():
             user.__setattr__(key, json_req[key])
         db.session.flush()

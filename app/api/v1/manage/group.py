@@ -1,6 +1,6 @@
 import json
 from sqlalchemy_pagination import paginate
-from app.enums import ADMIN_GROUP, ADMIN_ROLE
+from app.enums import ADMIN_GROUP, ADMIN_ROLE, MESSAGE_ID
 from app.validator import GetGroupValidation, GroupSchema, DeleteGroupValidator, PostGroupValidator, UpdateGroupValidator
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
@@ -18,6 +18,7 @@ api = Blueprint('manage/group', __name__)
 @api.route('', methods=['GET'])
 @authorization_require()
 def get_groups():
+
     try:
         """ This api get all groups.
             Returns:
@@ -77,6 +78,7 @@ def get_groups():
 @authorization_require()
 def remove_groups():
     try:
+        code_lang = request.args.get('code_lang', 'EN')
         try:
             body = request.get_json()
             body_request = DeleteGroupValidator().load(body) if body else dict()
@@ -104,7 +106,7 @@ def remove_groups():
             Token.revoke_all_token(user_id)
         db.session.flush()
         db.session.commit()
-        return send_result(message='Remove success!')
+        return send_result(message='Remove success!', message_id=MESSAGE_ID, code_lang=code_lang)
     except Exception as ex:
         db.session.rollback()
         return send_error(message=str(ex))
@@ -114,6 +116,7 @@ def remove_groups():
 @authorization_require()
 def post_group():
     try:
+        code_lang = request.args.get('code_lang', 'EN')
         user_id = get_jwt_identity()
         try:
             body = request.get_json()
@@ -145,7 +148,7 @@ def post_group():
 
         db.session.flush()
         db.session.commit()
-        return send_result(message='Add Group success!')
+        return send_result(message='Add Group success!', message_id=MESSAGE_ID, code_lang=code_lang)
     except Exception as ex:
         db.session.rollback()
         return send_error(message=str(ex))
@@ -155,6 +158,7 @@ def post_group():
 @authorization_require()
 def update_group(group_id):
     try:
+        code_lang = request.args.get('code_lang', 'EN')
         user_id = get_jwt_identity()
         try:
             body = request.get_json()
@@ -189,7 +193,7 @@ def update_group(group_id):
         group.modified_date = get_timestamp_now()
         db.session.flush()
         db.session.commit()
-        return send_result(message='Update success!')
+        return send_result(message='Update success!', message_id=MESSAGE_ID, code_lang=code_lang)
     except Exception as ex:
         db.session.rollback()
         return send_error(message=str(ex))
