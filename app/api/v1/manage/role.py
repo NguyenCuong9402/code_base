@@ -116,13 +116,13 @@ def remove_roles():
             return send_error(message='INVALID', data=err.messages)
 
         roles_id = body_request.get('roles_id', [])
-        is_delete_all = body_request.get('is_delete_all', False)
+        is_delete_all = body_request.get('is_delete_all', True)
 
         if is_delete_all:
             users_id = get_users_id_by_group_and_role(groups_id=[], roles_id=roles_id)
-            Role.query.filter(Role.id.in_(roles_id), Group.key != ADMIN_ROLE).delete()
+            Role.query.filter(Role.id.in_(roles_id), Role.key != ADMIN_ROLE).delete()
         else:
-            query_role = Role.query.filter(Role.id.notin_(roles_id), Group.key != ADMIN_ROLE)
+            query_role = Role.query.filter(Role.id.notin_(roles_id), Role.key != ADMIN_ROLE)
             roles_id_to_delete = [role.id for role in query_role.all()]
             users_id = get_users_id_by_group_and_role(groups_id=[], roles_id=roles_id_to_delete)
             query_role.delete()

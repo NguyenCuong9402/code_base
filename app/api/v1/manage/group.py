@@ -99,7 +99,7 @@ def remove_groups():
             }))
             return send_error(message='INVALID', data=err.messages)
         groups_id = body_request.get('groups_id', [])
-        is_delete_all = body_request.get('is_delete_all', False)
+        is_delete_all = body_request.get('is_delete_all', True)
         if is_delete_all:
             users_id = get_users_id_by_group_and_role(groups_id=groups_id, roles_id=[])
             Group.query.filter(Group.id.in_(groups_id), Group.key != ADMIN_GROUP).delete()
