@@ -273,4 +273,16 @@ class MessageSchema(Schema):
     last_modified_user = fields.Nested(UserParentSchema)
 
 
+class UpdateMessageValidator(Schema):
+    show = fields.Boolean()
+    dynamic = fields.Boolean()
+    duration = fields.Integer()
+    message_id = fields.String()
+    object = fields.String()
+    code_lang = fields.String()
+    status = fields.String(validate=validate.OneOf(["success", "error"]))
+    message = fields.String()
+    description = fields.String()
+
+
 

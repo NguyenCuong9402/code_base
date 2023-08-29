@@ -3,7 +3,8 @@ from sqlalchemy_pagination import paginate
 from werkzeug.security import generate_password_hash
 
 from app.enums import ADMIN_EMAIL, ADMIN_GROUP, ADMIN_ROLE, MESSAGE_ID
-from app.validator import MessageSchema, GetMessageValidation, DeleteMessageValidator, MessageValidation
+from app.validator import MessageSchema, GetMessageValidation, DeleteMessageValidator, MessageValidation, \
+    UpdateMessageValidator
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
 from sqlalchemy import or_
@@ -149,6 +150,35 @@ def create_message():
         db.session.add(new_message)
         db.session.flush()
         return send_result(data=MessageSchema().dump(new_message), message='Success', code_lang=code_lang, message_id=MESSAGE_ID)
+    except Exception as ex:
+        db.session.rollback()
+        return send_error(message=str(ex))
+
+
+@api.route('/<message_id>', methods=['PUT'])
+@authorization_require()
+def update_message(message_id):
+    try:
+        code_lang = request.args.get('code_lang', 'EN')
+        try:
+            body = request.get_json()
+            body_request = UpdateMessageValidator().load(body) if body else dict()
+        except ValidationError as err:
+            logger.error(json.dumps({
+                "message": err.messages,
+                "data": err.valid_data
+            }))
+            return send_error(message='INVALID', data=err.messages)
+
+        message = Message.query.filter(Message.id == message_id).first()
+        if message is None:
+            return send_error(message='Not found role')
+
+        for key in body_request.keys():
+            message.__setattr__(key, body_request[key])
+        db.session.flush()
+        db.session.commit()
+        return send_result(code_lang=code_lang, message_id=MESSAGE_ID, message='Success')
     except Exception as ex:
         db.session.rollback()
         return send_error(message=str(ex))
