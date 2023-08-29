@@ -102,6 +102,8 @@ def send_error(data: any = None, message_id: str = '', message: str = "Error", c
         message_dict['status'] = message_obj['status']
         message_dict['show'] = message_obj['show']
         message_dict['duration'] = message_obj['duration']
+        message_dict['created_date'] = message_obj['created_date']
+        message_dict['modified_date'] = message_obj['modified_date']
 
     res = {
         "code": code,
