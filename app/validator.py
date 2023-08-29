@@ -168,8 +168,13 @@ class PostRoleValidator(Schema):
 
 class ChangeUserValidation(Schema):
     is_active = fields.Boolean()
-    group_ids = fields.List(fields.String())
-    role_ids = fields.List(fields.String())
+    groups_id = fields.List(fields.String())
+    roles_id = fields.List(fields.String())
+    status = fields.Boolean()
+
+
+class DeleteUserValidator(Schema):
+    users_id = fields.List(fields.String(), required=True)
 
 
 class UserParentSchema(Schema):

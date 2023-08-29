@@ -3,7 +3,7 @@ from sqlalchemy_pagination import paginate
 from werkzeug.security import generate_password_hash
 
 from app.enums import ADMIN_EMAIL, ADMIN_GROUP, ADMIN_ROLE, MESSAGE_ID
-from app.validator import UserSchema, GetUserValidation, UserValidation, ChangeUserValidation
+from app.validator import UserSchema, GetUserValidation, UserValidation, ChangeUserValidation, DeleteUserValidator
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
 from sqlalchemy import or_
@@ -169,52 +169,73 @@ def put_user(user_id):
         if is_not_validate:
             return send_error(data=is_not_validate, message='INVALID')
         user = User.query.filter(User.id == user_id, type != 3).first()
+        if user is None:
+            return send_error(message='Not found user.')
         is_active = json_req.get('is_active', None)
-        group_ids = json_req.get('group_ids', None)
-        role_ids = json_req.get('role_ids', None)
+        groups_id = json_req.get('groups_id', None)
+        roles_id = json_req.get('roles_id', None)
+        status = json_req.get('status', None)
+        user_groups = UserGroupRole.query.filter(UserGroupRole.user_id == user_id, UserGroupRole.role_id.is_(None))
+        user_groups_id = [group.group_id for group in user_groups.all()]
 
-        if is_active is not None:
+        user_roles = UserGroupRole.query.filter(UserGroupRole.user_id == user_id, UserGroupRole.group_id.is_(None))
+        user_roles_id = [role.role_id for role in user_roles.all()]
+        flag_change = False
+        if is_active is not None and is_active != user.is_active:
             user.is_active = is_active
-
-        if group_ids is not None:
-            UserGroupRole.query.filter(UserGroupRole.user_id == user_id, UserGroupRole.role_id.is_(None)).delete()
-            groups = Group.query.filter(Role.key != ADMIN_GROUP, Group.id.in_(group_ids)).all()
+            flag_change = True
+        if status is not None and status != user.status:
+            user.status = status
+            flag_change = True
+        if groups_id is not None and groups_id != user_groups_id:
+            user_groups.delete()
+            groups = Group.query.filter(Group.key != ADMIN_GROUP, Group.id.in_(groups_id)).all()
             list_user_group = [UserGroupRole(id=str(uuid.uuid4()), group_id=group.id, user_id=user_id) for group in
                                groups]
             db.session.bulk_save_objects(list_user_group)
             db.session.flush()
-            # logout
-            Token.revoke_all_token(user.id)
-        if role_ids is not None:
-            UserGroupRole.query.filter(UserGroupRole.user_id == user_id, UserGroupRole.group_id.is_(None)).delete()
-
-            roles = Role.query.filter(Role.key != ADMIN_ROLE, Role.id.in_(role_ids)).all()
+            flag_change = True
+        if roles_id is not None and roles_id != user_roles_id:
+            user_roles.delete()
+            roles = Role.query.filter(Role.key != ADMIN_ROLE, Role.id.in_(roles_id)).all()
             list_user_role = [UserGroupRole(id=str(uuid.uuid4()), user_id=user_id, role_id=role.id) for role in roles]
             db.session.bulk_save_objects(list_user_role)
             db.session.flush()
-            # logout
+            flag_change = True
+        # Revoke all tokens
+        if flag_change:
             Token.revoke_all_token(user.id)
-        user.last_modified_user_id = get_jwt_identity()
-        db.session.commit()
-        return send_result(message='CHANGE_SUCCESS', message_id=MESSAGE_ID, code_lang=code_lang)
+            user.last_modified_user_id = get_jwt_identity()
+            db.session.commit()
+            return send_result(message='CHANGE_SUCCESS', message_id=MESSAGE_ID, code_lang=code_lang)
+        return send_result(message='NOTHING CHANGED')
     except Exception as e:
         db.session.rollback()
         return send_error(message=str(e))
 
 
-@api.route('/<user_id>', methods=['DELETE'])
+@api.route('', methods=['DELETE'])
 @authorization_require()
-def delete_user(user_id):
+def delete_user():
     try:
+
         code_lang = request.args.get('code_lang', 'EN')
 
-        user = User.query.filter(User.id == user_id, User.type != 3)
-        if user is None:
-            return send_error(message='NOT FOUND USER')
-        db.session.delete(user)
+        try:
+            body = request.get_json()
+            body_request = DeleteUserValidator().load(body) if body else dict()
+        except ValidationError as err:
+            logger.error(json.dumps({
+                "message": err.messages,
+                "data": err.valid_data
+            }))
+            return send_error(message='INVALID', data=err.messages)
+        users_id = body_request.get("users_id")
+        users = User.query.filter(User.id.in_(users_id), User.type != 3)
+        for user in users.all():
+            Token.revoke_all_token(user.id)
+        users.delete()
         db.session.commit()
-        # revoke all token of reset user  from database
-        Token.revoke_all_token(user_id)
         return send_result(message='DELETE_SUCCESS', message_id=MESSAGE_ID, code_lang=code_lang)
     except Exception as e:
         db.session.rollback()
