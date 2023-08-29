@@ -34,7 +34,7 @@ class DevConfig(Config):
     REDIS_PASSWORD = 'cuong-boot-ai'
 
     # mysql config
-    SQLALCHEMY_DATABASE_URI = 'mysql://root:G-^rqEyhE6p=A#u*RU:V9J6-@192.168.1.17:3306/demo_stg1'
+    SQLALCHEMY_DATABASE_URI = 'mysql://root:G-^rqEyhE6p=A#u*RU:V9J6-@192.168.1.17:3306/demo_stg'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 
