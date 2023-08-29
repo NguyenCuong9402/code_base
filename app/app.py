@@ -134,6 +134,10 @@ def add_messages_to_redis():
             "dynamic": message.dynamic,
             "object": message.object,
             "message": message.message,
-            "code_lang": message.code_lang
+            "code_lang": message.code_lang,
+            "created_date": message.created_date,
+            "modified_date": message.modified_date,
+            "created_user": message.created_user,
+            "last_modified_user": message.last_modified_user
         }
         red.set(key, json.dumps(value))

@@ -136,4 +136,9 @@ class Message(db.Model):
     code_lang = db.Column(db.String(10))
     created_date = db.Column(INTEGER(unsigned=True), default=get_timestamp_now(), nullable=False)
     modified_date = db.Column(INTEGER(unsigned=True), default=0)
+    created_user = db.Column(db.String(50), db.ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'),
+                             nullable=True)
+    last_modified_user = db.Column(db.String(50), db.ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'),
+                                   nullable=True)
+
 
