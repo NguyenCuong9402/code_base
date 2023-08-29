@@ -119,4 +119,3 @@ REGEX_URL = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^
 
 REGEX_ADDRESS_VIETNAMESE = r"([^`~!@#$%^&*().?'\":;{}+=|<>_\-\\\[\]]+)$"
 REGEX_VALID_PASSWORD = r'^(?=.*[0-9])(?=.*[a-zA-Z])(?!.* ).{8,16}$'
-secret_key_serpapi = "13b70e23408306d0e6f4b1f7e59b6fc3643128c415e9696a6502102d5166cf59"

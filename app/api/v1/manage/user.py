@@ -117,8 +117,6 @@ def create_user():
         if check_exits_user:
             return send_error(message='EXISTED_EMAIL', message_id=message_id, code_lang=code_lang)
 
-        groups = Group.query.filter(Group.id.in_(json_req.get("group_ids", []))).all()
-        roles = Role.query.filter(Role.id.in_(json_req.get("role_ids", []))).all()
         # create user
         password = generate_password()
 
@@ -136,12 +134,18 @@ def create_user():
             force_change_password=1
         )
         db.session.add(new_user)
-
-        list_user_role = [UserGroupRole(id=str(uuid.uuid4()), user_id=new_user.id, role=role.id) for role in roles]
-        list_user_group = [UserGroupRole(id=str(uuid.uuid4()), user_id=new_user.id, group_id=group.id) for group in groups]
-        db.session.bulk_save_objects(list_user_group)
-        db.session.bulk_save_objects(list_user_role)
-        db.session.add(new_user)
+        db.session.flush()
+        groups_id = json_req.get("groups_id", [])
+        roles_id = json_req.get("roles_id", [])
+        if groups_id:
+            groups = Group.query.filter(Group.id.in_(groups_id)).all()
+            list_user_group = [UserGroupRole(id=str(uuid.uuid4()), user_id=new_user.id, group_id=group.id) for group in
+                               groups]
+            db.session.bulk_save_objects(list_user_group)
+        if roles_id:
+            roles = Role.query.filter(Role.id.in_(roles_id)).all()
+            list_user_role = [UserGroupRole(id=str(uuid.uuid4()), user_id=new_user.id, role_id=role.id) for role in roles]
+            db.session.bulk_save_objects(list_user_role)
         db.session.commit()
         data = UserSchema().dump(new_user)
         data['password'] = password

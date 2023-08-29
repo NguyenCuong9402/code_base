@@ -83,8 +83,8 @@ class UserValidation(BaseValidation):
                               validate=[validate.Length(min=1, max=50), validate.Regexp(REGEX_FULLNAME_VIETNAMESE)])
     email = fields.String(required=True, validate=[validate.Length(min=3, max=50), validate.Regexp(REGEX_EMAIL)])
     status = fields.Boolean(required=True)
-    group_ids = fields.List(fields.String(validate=validate.Length(max=50)))
-    role_ids = fields.List(fields.String(validate=validate.Length(max=50)))
+    groups_id = fields.List(fields.String(validate=validate.Length(max=50)))
+    roles_id = fields.List(fields.String(validate=validate.Length(max=50)))
 
 
 class RegisterValidation(BaseValidation):
