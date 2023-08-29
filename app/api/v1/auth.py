@@ -318,8 +318,8 @@ def revoked_token_callback():
 # @api.route('/set-role-permission', methods=['GET'])
 # def set_role_permission():
 #     try:
-#         role = Role.query.filter(Role.key == 'permissionadminsuper').first()
-#         permissions = Permission.query.filter(Permission.key == 'permissionadminsuper').all()
+#         role = Role.query.filter(Role.key == 'permissionuserbasic').first()
+#         permissions = Permission.query.filter(Permission.key == 'permissionuserbasic').all()
 #         list_add = []
 #         for permission in permissions:
 #             role_permission = RolePermission(id=str(uuid.uuid1()), permission_id=permission.id, role_id=role.id)
