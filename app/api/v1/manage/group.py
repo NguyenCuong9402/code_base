@@ -171,15 +171,10 @@ def update_group(group_id):
         group = Group.query.filter(Group.id == group_id, Group.key != ADMIN_GROUP).first()
         if group is None:
             return send_error(message='NOT FOUND GROUP')
-        name = body_request.get('name', None)
-        description = body_request.get('description', None)
-        roles_id = body_request.get('roles_id', None)
 
-        if name is not None:
-            group.name = name
-        if description is not None:
-            group.description = description
+        roles_id = body_request.get('roles_id', None)
         if roles_id is not None:
+            del body_request["roles_id"]
             users = get_users_id_by_group_and_role(groups_id=[group_id], roles_id=[])
             for user in users:
                 Token.revoke_all_token(user)
@@ -188,6 +183,8 @@ def update_group(group_id):
             list_group_role = [UserGroupRole(id=str(uuid.uuid4()), group_id=group.id, role_id=role.id) for role in roles]
             db.session.bulk_save_objects(list_group_role)
             db.session.flush()
+        for key in body_request.keys():
+            group.__setattr__(key, body_request[key])
         group.last_modified_user = user_id
         group.modified_date = get_timestamp_now()
         db.session.flush()

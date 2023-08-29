@@ -129,9 +129,10 @@ class PostGroupValidator(Schema):
 
 
 class UpdateGroupValidator(Schema):
+    key = fields.String()
     name = fields.String()
     description = fields.String()
-    role_ids = fields.List(fields.String())
+    roles_id = fields.List(fields.String())
 
 
 class PasswordValidation(Schema):
@@ -143,7 +144,7 @@ class PasswordValidation(Schema):
 
 
 class DeleteGroupValidator(Schema):
-    group_ids = fields.List(fields.String(), required=True)
+    groups_id = fields.List(fields.String(), required=True)
     is_delete_all = fields.Boolean()
 
 
