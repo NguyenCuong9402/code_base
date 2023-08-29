@@ -1,7 +1,8 @@
 import json
 from sqlalchemy_pagination import paginate
 from app.enums import ADMIN_GROUP, ADMIN_ROLE, MESSAGE_ID
-from app.validator import GetGroupValidation, GroupSchema, DeleteGroupValidator, PostGroupValidator, UpdateGroupValidator
+from app.validator import GetGroupValidation, GroupSchema, DeleteGroupValidator, PostGroupValidator, \
+    UpdateGroupValidator
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
 from app.models import Group, UserGroupRole, Role
@@ -79,7 +80,8 @@ def get_group(group_id):
     try:
         code_lang = request.args.get('code_lang', 'EN')
         query = Group.query.filter(Group.key != ADMIN_GROUP, Group.id == group_id).first()
-        return send_result(data=GroupSchema().dump(query), message='Success', message_id=MESSAGE_ID, code_lang=code_lang)
+        return send_result(data=GroupSchema().dump(query), message='Success', message_id=MESSAGE_ID,
+                           code_lang=code_lang)
     except Exception as ex:
         return send_error(message=str(ex))
 
@@ -169,7 +171,7 @@ def post_group():
 def update_group(group_id):
     try:
         code_lang = request.args.get('code_lang', 'EN')
-        user_id = get_jwt_identity()
+        last_modified_user = get_jwt_identity()
         try:
             body = request.get_json()
             body_request = UpdateGroupValidator().load(body) if body else dict()
@@ -183,20 +185,22 @@ def update_group(group_id):
         if group is None:
             return send_error(message='NOT FOUND GROUP')
 
-        roles_id = body_request.get('roles_id', None)
-        if roles_id is not None:
-            del body_request["roles_id"]
+        roles_id = body_request.pop('roles_id', None)
+        group_roles = UserGroupRole.query.filter(UserGroupRole.group_id == group.id, UserGroupRole.user_id.is_(None))
+        group_roles_id = [group_role.role_id for group_role in group_roles.all()]
+        if roles_id is not None and roles_id != group_roles_id:
             users = get_users_id_by_group_and_role(groups_id=[group_id], roles_id=[])
             for user in users:
                 Token.revoke_all_token(user)
-            UserGroupRole.query.filter(UserGroupRole.group_id == group.id, UserGroupRole.user_id.is_(None)).delete()
+            group_roles.delete()
             roles = Role.query.filter(Role.key != ADMIN_ROLE, Role.id.in_(roles_id)).all()
-            list_group_role = [UserGroupRole(id=str(uuid.uuid4()), group_id=group.id, role_id=role.id) for role in roles]
+            list_group_role = [UserGroupRole(id=str(uuid.uuid4()), group_id=group.id, role_id=role.id) for role in
+                               roles]
             db.session.bulk_save_objects(list_group_role)
             db.session.flush()
         for key in body_request.keys():
             group.__setattr__(key, body_request[key])
-        group.last_modified_user = user_id
+        group.last_modified_user = last_modified_user
         group.modified_date = get_timestamp_now()
         db.session.flush()
         db.session.commit()

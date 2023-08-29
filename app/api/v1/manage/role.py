@@ -197,6 +197,7 @@ def create_roles():
 @authorization_require()
 def update_role(role_id):
     try:
+        last_modified_user = get_jwt_identity()
         code_lang = request.args.get('code_lang', 'EN')
         try:
             body = request.get_json()
@@ -230,6 +231,7 @@ def update_role(role_id):
                 Token.revoke_all_token(user_id)
         for key in body_request.keys():
             role.__setattr__(key, body_request[key])
+        role.last_modified_user = last_modified_user
         db.session.flush()
         db.session.commit()
         return send_result(code_lang=code_lang, message_id=MESSAGE_ID, message='Success')
