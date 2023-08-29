@@ -141,4 +141,3 @@ class Message(db.Model):
     last_modified_user = db.Column(db.String(50), db.ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'),
                                    nullable=True)
 
-

@@ -1,12 +1,11 @@
 import json
-
+import redis
 from .api import v1 as api_v1
 from flask import Flask
 from flask_cors import CORS
 from .models import Message
 from .api.helper import send_result, send_error
 from .extensions import jwt, db, migrate, CONFIG, red
-from .redis_manage import add_messages_to_redis
 
 
 def create_app(config_object=CONFIG):
@@ -21,7 +20,12 @@ def create_app(config_object=CONFIG):
     register_monitor(app)
     register_blueprints(app)
     CORS(app, expose_headers=["Content-Disposition"])
-    add_messages_to_redis()
+
+    @app.before_first_request
+    def setup_redis():
+        add_messages_to_redis()
+
+    return app
 
     # pubsub = red.pubsub()
     #
@@ -59,7 +63,6 @@ def create_app(config_object=CONFIG):
     #     # Gửi thông điệp tới kênh để cập nhật realtime
     #     pubsub.publish('message_delete', key)
 
-    return app
 
 
 def register_extensions(app):
@@ -119,3 +122,26 @@ def register_blueprints(app):
 
     app.register_blueprint(api_v1.auth.api, url_prefix='/api/v1/auth')
     app.register_blueprint(api_v1.profile.api, url_prefix='/api/v1/profile')
+
+
+def add_messages_to_redis():
+    messages = Message.query.all()
+    for message in messages:
+        key = f"message:{message.message_id}-{message.code_lang}"
+        value = {
+            "id": message.id,
+            "message_id": message.message_id,
+            "show": message.show,
+            "description": message.description,
+            "duration": message.duration,
+            "status": message.status,
+            "dynamic": message.dynamic,
+            "object": message.object,
+            "message": message.message,
+            "code_lang": message.code_lang,
+            "created_date": message.created_date,
+            "modified_date": message.modified_date,
+            "created_user": message.created_user,
+            "last_modified_user": message.last_modified_user
+        }
+        red.set(key, json.dumps(value))
