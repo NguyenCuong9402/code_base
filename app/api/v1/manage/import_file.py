@@ -13,7 +13,6 @@ api = Blueprint('manage/import_file', __name__)
 
 
 @api.route('/upload', methods=['POST'])
-@authorization_require()
 def upload_file():
     try:
         code_lang = request.args.get('code_lang', 'EN')
@@ -25,9 +24,9 @@ def upload_file():
             list_add_permission = []
             # Lặp qua từng hàng của DataFrame và thêm vào cơ sở dữ liệu
             for index, row in df.iterrows():
-                existing_permission = Permission.query.filter(or_(Permission.key == row['key'],
-                                                                  Permission.name == row['name']),
-                                                              Permission.resource == row['resource'])
+                existing_permission = Permission.query.filter(Permission.key == row['key'],
+                                                              Permission.name == row['name'],
+                                                              Permission.resource == row['resource']).first()
                 if existing_permission is None:
                     permission = Permission(
                         id=str(uuid.uuid4()),

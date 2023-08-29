@@ -45,15 +45,15 @@ def send_result(data: any = None, message_id: str = '', message: str = "OK", cod
     if message_redis is not None:
         message_obj = json.loads(message_redis)
         if message_dict['dynamic'] == 0:
-            message_dict['text'] = message_obj.message
+            message_dict['text'] = message_obj['message']
         else:
             if not message == 'OK':
                 message_dict['text'] = message
             else:
-                message_dict['text'] = message_obj.message.format(**val_error)
-        message_dict['status'] = message_obj.status
-        message_dict['show'] = message_obj.show
-        message_dict['duration'] = message_obj.duration
+                message_dict['text'] = message_obj['message'].format(**val_error)
+        message_dict['status'] = message_obj['status']
+        message_dict['show'] = message_obj['show']
+        message_dict['duration'] = message_obj['duration']
 
     res = {
         "code": code,
@@ -93,16 +93,15 @@ def send_error(data: any = None, message_id: str = '', message: str = "Error", c
     if message_redis is not None:
         message_obj = json.loads(message_redis)
         if message_dict['dynamic'] == 0:
-            message_dict['text'] = message_obj.message
+            message_dict['text'] = message_obj['message']
         else:
-            if not message == 'Error':
+            if not message == 'OK':
                 message_dict['text'] = message
             else:
-                message_dict['text'] = message_obj.message.format(**val_error)
-
-        message_dict['status'] = message_obj.status
-        message_dict['show'] = message_obj.show
-        message_dict['duration'] = message_obj.duration
+                message_dict['text'] = message_obj['message'].format(**val_error)
+        message_dict['status'] = message_obj['status']
+        message_dict['show'] = message_obj['show']
+        message_dict['duration'] = message_obj['duration']
 
     res = {
         "code": code,
