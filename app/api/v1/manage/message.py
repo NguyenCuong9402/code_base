@@ -81,7 +81,7 @@ def get_messages():
         # 5. Paginator
         paginator = paginate(query, page_number, page_size)
         # 6. Dump data
-        messages = Message(many=True).dump(paginator.items)
+        messages = MessageSchema(many=True).dump(paginator.items)
 
         response_data = dict(
             items=messages,
@@ -121,12 +121,8 @@ def delete_message():
 def create_message():
     try:
         code_lang = request.args.get('code_lang', 'EN')
-        try:
-            json_req = request.get_json()
-            user_create_id = get_jwt_identity()
-        except Exception as ex:
-            return send_error(message="Request Body incorrect json format: " + str(ex), code=442)
 
+        user_create_id = get_jwt_identity()
         try:
             body = request.get_json()
             body_request = MessageValidation().load(body) if body else dict()
@@ -149,6 +145,8 @@ def create_message():
 
         db.session.add(new_message)
         db.session.flush()
+        db.session.commit()
+
         return send_result(data=MessageSchema().dump(new_message), message='Success', code_lang=code_lang, message_id=MESSAGE_ID)
     except Exception as ex:
         db.session.rollback()

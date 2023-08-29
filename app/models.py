@@ -70,8 +70,8 @@ class Group(db.Model):
     modified_date = db.Column(INTEGER(unsigned=True), default=0)
     last_modified_user = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'))
     created_user = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'))
-    modified_user_data = relationship('User', foreign_keys="Group.last_modified_user")
-    created_user_data = relationship('User', foreign_keys="Group.created_user")
+    modified_user_data = relationship('User', primaryjoin="and_(Group.last_modified_user == User.id, User.type != 3)")
+    created_user_data = relationship('User', primaryjoin="and_(Group.created_user == User.id, User.type != 3)")
 
 
 class Role(db.Model):
@@ -87,8 +87,8 @@ class Role(db.Model):
     last_modified_user = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'))
     created_user = db.Column(ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'))
     permissions = db.relationship("Permission", back_populates="roles", secondary="role_permission")
-    modified_user_data = relationship('User', foreign_keys="Role.last_modified_user")
-    created_user_data = relationship('User', foreign_keys="Role.created_user")
+    modified_user_data = relationship('User', primaryjoin="and_(Role.last_modified_user == User.id, User.type != 3)")
+    created_user_data = relationship('User', primaryjoin="and_(Role.created_user == User.id, User.type != 3)")
 
 
 class Permission(db.Model):
@@ -140,7 +140,7 @@ class Message(db.Model):
                              nullable=True)
     last_modified_user = db.Column(db.String(50), db.ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'),
                                    nullable=True)
-    modified_user_data = relationship('User', foreign_keys="Message.last_modified_user")
-    created_user_data = relationship('User', foreign_keys="Message.created_user")
+    modified_user_data = relationship('User', primaryjoin="and_(Message.last_modified_user == User.id, User.type != 3)")
+    created_user_data = relationship('User', primaryjoin="and_(Message.created_user == User.id, User.type != 3)")
 
 

@@ -269,8 +269,8 @@ class MessageSchema(Schema):
     code_lang = fields.String()
     created_date = fields.Integer()
     modified_date = fields.Integer()
-    created_user = fields.Nested(UserParentSchema)
-    last_modified_user = fields.Nested(UserParentSchema)
+    created_user_data = fields.Nested(UserParentSchema)
+    modified_user_data = fields.Nested(UserParentSchema)
 
 
 class UpdateMessageValidator(Schema):
