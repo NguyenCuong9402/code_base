@@ -56,6 +56,18 @@ class GetUserValidation(BaseValidation):
     order_by = fields.String(required=False, validate=validate.OneOf(["asc", "desc"]))
 
 
+class GetMessageValidation(BaseValidation):
+
+    page = fields.Integer(required=False)
+    page_size = fields.Integer(required=False)
+    search = fields.String(required=False, validate=validate.Length(min=0, max=200))
+    sort = fields.String(required=False,
+                         validate=validate.OneOf(
+                             ["message_id", "description", "show", "duration", "created_user", "status", "message"
+                              "dynamic", "code_lang", "created_date", "modified_date"]))
+    order_by = fields.String(required=False, validate=validate.OneOf(["asc", "desc"]))
+
+
 class GetGroupValidation(BaseValidation):
 
     page = fields.Integer(required=False)
@@ -85,6 +97,18 @@ class UserValidation(BaseValidation):
     status = fields.Boolean(required=True)
     groups_id = fields.List(fields.String(validate=validate.Length(max=50)))
     roles_id = fields.List(fields.String(validate=validate.Length(max=50)))
+
+
+class MessageValidation(Schema):
+    message_id = fields.String(required=True)
+    description = fields.String(required=True)
+    code_lang = fields.String(required=True)
+    object = fields.String()
+    show = fields.Boolean()
+    duration = fields.Integer()
+    status = fields.String(required=True, validate=validate.OneOf(["success", "error"]))
+    message = fields.String(required=True)
+    dynamic = fields.Boolean()
 
 
 class RegisterValidation(BaseValidation):
@@ -175,6 +199,10 @@ class ChangeUserValidation(Schema):
 
 class DeleteUserValidator(Schema):
     users_id = fields.List(fields.String(), required=True)
+
+
+class DeleteMessageValidator(Schema):
+    messages_id = fields.List(fields.String(), required=True)
 
 
 class UserParentSchema(Schema):
