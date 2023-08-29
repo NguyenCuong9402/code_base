@@ -288,7 +288,7 @@ def verify_password():
     if not check_password_hash(user.password_hash, current_password):
         return send_error(message='INCORRECT_PASSWORD', message_id=MESSAGE_ID, code_lang=code_lang)
 
-    return send_result(data={}, message_id='MESSAGE_ID_4', code_lang=code_lang)
+    return send_result(data={}, message_id=MESSAGE_ID, code_lang=code_lang)
 
 
 @jwt.token_in_blacklist_loader

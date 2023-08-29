@@ -26,7 +26,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      -  C:\redis\Redis-x64-3.0.504:/usr/local/etc/redis
+      -  C:\redis\Redis:/usr/local/etc/redis
     networks:
       - source-code-base-net
 
