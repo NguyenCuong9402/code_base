@@ -3,7 +3,7 @@ from sqlalchemy_pagination import paginate
 
 from app.api.v1.manage.group import get_users_id_by_group_and_role
 from app.enums import ADMIN_ROLE, MESSAGE_ID
-from app.validator import GetRoleValidation, RoleSchema, DeleteRoleValidator, UpdateRoleValidator
+from app.validator import GetRoleValidation, RoleSchema, DeleteRoleValidator, UpdateRoleValidator, PostRoleValidator
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
 from app.models import Group, Role, Permission, RolePermission
@@ -22,7 +22,7 @@ api = Blueprint('manage/role', __name__)
 @authorization_require()
 def get_key_permission():
     try:
-        unique_keys_query = db.session.query(distinct(Permission.key))
+        unique_keys_query = db.session.query(distinct(Permission.key)).filter(Permission.key != ADMIN_ROLE)
         unique_keys = [result[0] for result in unique_keys_query.all()]
         return send_result(data=unique_keys, message='Ok')
     except Exception as ex:
@@ -146,7 +146,7 @@ def create_roles():
 
         try:
             body = request.get_json()
-            body_request = DeleteRoleValidator().load(body) if body else dict()
+            body_request = PostRoleValidator().load(body) if body else dict()
         except ValidationError as err:
             logger.error(json.dumps({
                 "message": err.messages,
@@ -158,9 +158,9 @@ def create_roles():
         if check_key is None:
             return send_error(message='Key does not exist!', code_lang=code_lang, message_id=MESSAGE_ID)
         name = body_request.get('name')
-        check_name = Role.query.filter(Role.name == name)
-        if check_name is not None:
-            return send_error(message='Name already exists', code_lang=code_lang, message_id=MESSAGE_ID)
+        check_name = Role.query.filter(Role.name == name).first()
+        if check_name:
+            return send_error(message='Name already exists', code_lang=code_lang)
         description = body_request.get('description', '')
         role = Role(
             id=str(uuid.uuid4()),
@@ -173,7 +173,7 @@ def create_roles():
         db.session.add(role)
         db.session.flush()
 
-        role_type = body_request.get('type')
+        role_type = body_request.get('role_type')
         list_method = convert_method_by_type(role_type)
         permission_data = []
         for item in list_method:
@@ -190,7 +190,7 @@ def create_roles():
         return send_result(message='Created success!', message_id=MESSAGE_ID, code_lang=code_lang)
     except Exception as ex:
         db.session.rollback()
-        return send_result(message=str(ex))
+        return send_error(message=str(ex))
 
 
 @api.route('/<role_id>', methods=['PUT'])
@@ -207,12 +207,13 @@ def update_role(role_id):
                 "data": err.valid_data
             }))
             return send_error(message='INVALID', data=err.messages)
+        role = Role.query.filter(Role.id == role_id).first()
+        if role is None:
+            return send_error(message='Not found role')
+
         role_type = body_request.get('type', None)
-        role = Role.query.filter(Role.id == role_id)
-        for key in body_request.keys():
-            role.__setattr__(key, body_request[key])
-        if role_type is not None and role_type != role.type:
-            Permission.query.filter(Permission.role_id == role.id).delete()
+        if role_type is not None and (role_type != role.type):
+            RolePermission.query.filter(RolePermission.role_id == role.id).delete()
             list_method = convert_method_by_type(role_type)
             permission_data = []
             for item in list_method:
@@ -227,6 +228,8 @@ def update_role(role_id):
             # Clear token
             for user_id in users_id:
                 Token.revoke_all_token(user_id)
+        for key in body_request.keys():
+            role.__setattr__(key, body_request[key])
         db.session.flush()
         db.session.commit()
         return send_result(code_lang=code_lang, message_id=MESSAGE_ID, message='Success')

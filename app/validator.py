@@ -149,7 +149,7 @@ class DeleteGroupValidator(Schema):
 
 
 class DeleteRoleValidator(Schema):
-    group_ids = fields.List(fields.String(), required=True)
+    roles_id = fields.List(fields.String(), required=True)
     is_delete_all = fields.Boolean()
 
 
