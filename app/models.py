@@ -140,4 +140,7 @@ class Message(db.Model):
                              nullable=True)
     last_modified_user = db.Column(db.String(50), db.ForeignKey('user.id', ondelete='SET NULL', onupdate='CASCADE'),
                                    nullable=True)
+    modified_user_data = relationship('User', foreign_keys="Message.last_modified_user")
+    created_user_data = relationship('User', foreign_keys="Message.created_user")
+
 

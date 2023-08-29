@@ -201,7 +201,8 @@ class UserSchema(Schema):
     status = fields.Boolean()
     created_user_id = fields.String()
     last_modified_user_id = fields.String()
-    created_user = fields.Nested(UserParentSchema)
+    created_user_data = fields.Nested(UserParentSchema)
+    modified_user_data = fields.Nested(UserParentSchema)
 
 
 class GroupSchema(Schema):
@@ -227,6 +228,21 @@ class RoleSchema(Schema):
     created_user_data = fields.Nested(UserParentSchema)
 
 
+class MessageSchema(Schema):
+    id = fields.String()
+    message_id = fields.String()
+    description = fields.String()
+    show = fields.Boolean()
+    dynamic = fields.Boolean()
+    duration = fields.Integer()
+    status = fields.String()
+    message = fields.String()
+    object = fields.String()
+    code_lang = fields.String()
+    created_date = fields.Integer()
+    modified_date = fields.Integer()
+    created_user = fields.Nested(UserParentSchema)
+    last_modified_user = fields.Nested(UserParentSchema)
 
 
 
