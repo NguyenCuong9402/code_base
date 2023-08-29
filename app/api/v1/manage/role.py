@@ -29,6 +29,18 @@ def get_key_permission():
         return send_error(message=str(ex))
 
 
+@api.route('/<role_id>', methods=['GET'])
+@authorization_require()
+def get_role(role_id):
+    try:
+        code_lang = request.args.get('code_lang', 'EN')
+        query = Role.query.filter(Role.key != ADMIN_ROLE, Role.id == role_id).first()
+        return send_result(data=RoleSchema().dump(query), message='Success', message_id=MESSAGE_ID,
+                           code_lang=code_lang)
+    except Exception as ex:
+        return send_error(message=str(ex))
+
+
 @api.route('', methods=['GET'])
 @authorization_require()
 def get_roles():

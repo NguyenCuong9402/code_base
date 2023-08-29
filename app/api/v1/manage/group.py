@@ -73,6 +73,17 @@ def get_groups():
         return send_error(message=str(ex))
 
 
+@api.route('/<group_id>', methods=['GET'])
+@authorization_require()
+def get_group(group_id):
+    try:
+        code_lang = request.args.get('code_lang', 'EN')
+        query = Group.query.filter(Group.key != ADMIN_GROUP, Group.id == group_id).first()
+        return send_result(data=GroupSchema().dump(query), message='Success', message_id=MESSAGE_ID, code_lang=code_lang)
+    except Exception as ex:
+        return send_error(message=str(ex))
+
+
 @api.route('', methods=['DELETE'])
 @authorization_require()
 def remove_groups():
