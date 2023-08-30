@@ -155,7 +155,8 @@ def create_message():
                                    "message", "object", "code_lang", "last_modified_user", "created_date",
                                    "created_user", "modified_date"]).dump(new_message)
         publish_add_message(key, data)
-        return send_result(data=MessageSchema().dump(new_message), message='Success', code_lang=code_lang, message_id=MESSAGE_ID)
+        return send_result(data=MessageSchema().dump(new_message), message='Success', code_lang=code_lang,
+                           message_id="m123")
     except Exception as ex:
         db.session.rollback()
         return send_error(message=str(ex))
