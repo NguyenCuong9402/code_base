@@ -177,7 +177,7 @@ def update_message(message_id):
             return send_error(message='INVALID', data=err.messages)
 
         message = Message.query.filter(Message.id == message_id).first()
-        key = f"message:{message.message_id}-{message.code_lang}"
+        message_key = f"message:{message.message_id}-{message.code_lang}"
         if message is None:
             return send_error(message='Not found message')
 
@@ -188,7 +188,7 @@ def update_message(message_id):
         data = MessageSchema(only=["id", "message_id", "description", "show", "dynamic", "duration", "status",
                                    "message", "object", "code_lang", "last_modified_user", "created_date",
                                    "created_user", "modified_date"]).dump(message)
-        publish_update_message(key, data)
+        publish_update_message(message_key, data)
         return send_result(code_lang=code_lang, message_id=MESSAGE_ID, message='Success')
     except Exception as ex:
         db.session.rollback()

@@ -17,7 +17,7 @@ class PubSubManager:
         self.redis.publish("message", f"remove {count} message: {json.dumps(key)} ")
 
     def publish_update_message(self, key, new_key, data):
-        self.redis.publish("message", f"update message {key} - > {new_key}")
+        self.redis.publish("message", f"update message {key} - > {new_key}: {json.dumps(data)}")
 
     def subscribe_to_message_updates(self):
         self.pubsub.subscribe("message")
@@ -44,7 +44,7 @@ def publish_remove_message(keys: list):
     pubsub_manager.publish_remove_message(count, keys)
 
 
-def publish_update_message(key, data: dict):
+def publish_update_message(key: str, data: dict):
     new_key = f"message:{data['message_id']}-{data['code_lang']}"
     if new_key != key:
         red.delete(key)
