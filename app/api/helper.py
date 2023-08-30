@@ -9,7 +9,6 @@ from app.extensions import red
 from app.utils import get_timestamp_now
 from app.models import Message, db
 
-
 def send_result(data: any = None, message_id: str = '', message: str = "OK", code: int = 200,
                 status: str = 'success', show: bool = False, duration: int = 0, code_lang :str = 'EN',
                 val_error: dict = {}, is_dynamic: bool = False):
@@ -167,12 +166,6 @@ class Token:
         if red.get(jti) is None:
             is_revoked = True
         return is_revoked
-        # jti = decoded_token['jti']
-        # is_revoked = False
-        # get_jti = TokenModel.query.filter(TokenModel.jti == jti, TokenModel.expires > get_timestamp_now()).first()
-        # if get_jti is None:
-        #     is_revoked = True
-        # return is_revoked
 
     @classmethod
     def revoke_all_token(cls, user_id: str):
@@ -182,7 +175,6 @@ class Token:
         tokens_jti = red.get(user_id)
         tokens_jti = tokens_jti.decode() if tokens_jti else ''
         tokens_jti = tokens_jti.split(',')
-
         for jti in tokens_jti:
             red.delete(jti)
         red.set(user_id, '')

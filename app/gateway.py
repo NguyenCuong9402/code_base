@@ -1,14 +1,11 @@
 import pickle
 from functools import wraps
-
 from flask import request
-from flask_jwt_extended import (
-    verify_jwt_in_request, get_jwt_claims, get_jwt_identity
-)
-
+from flask_jwt_extended import verify_jwt_in_request, get_jwt_claims, get_jwt_identity
 from app.extensions import red
-from app.models import get_permission_resource
+from app.models import BlockToken
 from app.api.helper import send_error
+from app.utils import get_timestamp_now
 
 
 def authorization_require():
@@ -24,6 +21,13 @@ def authorization_require():
         @wraps(fn)
         def decorator(*args, **kwargs):
             verify_jwt_in_request()
+            encoded_token = request.headers.get('Authorization').split()[1]
+            block_token = BlockToken.query.filter(BlockToken.encoded_token == encoded_token,
+                                                  BlockToken.is_block != 0,
+                                                  BlockToken.expires > get_timestamp_now()).first()
+            if block_token:
+                return send_error(message='Token has been blocked!')
+
             permission_route = "{0}@{1}".format(request.method.lower(), request.url_rule.rule)
             claims = get_jwt_claims()
             if claims.get("force_change_password"):
