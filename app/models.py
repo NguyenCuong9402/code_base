@@ -152,5 +152,6 @@ class BlockToken(db.Model):
     jti = db.Column(db.String(50), nullable=False)
     expires = db.Column(INTEGER(unsigned=True), nullable=False)
     encoded_token = db.Column(db.String(50), nullable=False)
+    is_block = db.Column(db.Boolean, default=0)
 
 

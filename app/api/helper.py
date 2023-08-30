@@ -4,7 +4,7 @@ from flask_jwt_extended import decode_token
 from typing import List
 import pickle
 import json
-
+from app.models import BlockToken
 from app.extensions import red
 from app.utils import get_timestamp_now
 from app.models import Message, db
@@ -134,28 +134,25 @@ class Token:
     def add_token_to_database(cls, encoded_token: str, user_id: str):
         decoded_token = decode_token(encoded_token)
         jti = decoded_token['jti']
-        expires = int(decoded_token['exp'] - get_timestamp_now())
-
+        time_expires = int(decoded_token['exp'])
+        add_token = BlockToken(id=str(uuid.uuid4()), user_id=user_id, jti=jti, encoded_token=encoded_token,
+                               expires=time_expires)
+        db.session.add(add_token)
+        db.session.flush()
+        db.session.commit()
+        expires = int(time_expires - get_timestamp_now())
         tokens_jti = red.get(user_id)
         tokens_jti = tokens_jti.decode() + ',' + jti if tokens_jti else jti
         red.set(user_id, tokens_jti)
         red.set(jti, encoded_token, expires)
-        # add_jti = TokenModel(
-        #     id=str(uuid.uuid4()),
-        #     user_id=user_id,
-        #     jti=jti,
-        #     expires=expires,
-        #     encoded_token=encoded_token)
-        # db.session.add(add_jti)
-        # db.session.flush()
-        # db.session.commit()
 
     @classmethod
     def revoke_token(cls, jti):
+        block_token = BlockToken.query.filter(BlockToken.jti == jti).first()
+        if block_token:
+            block_token.is_block = 1
+            db.session.commit()
         red.delete(jti)
-        # TokenModel.query.filter(TokenModel.jti == jti).delete()
-        # db.session.flush()
-        # db.session.commit()
 
     @classmethod
     def is_token_revoked(cls, decoded_token):
@@ -179,12 +176,13 @@ class Token:
 
     @classmethod
     def revoke_all_token(cls, user_id: str):
-        # TokenModel.query.filter(TokenModel.user_id == user_id).delete()
-        # db.session.flush()
-        # db.session.commit()
+        db.session.query(BlockToken).filter(BlockToken.user_id == user_id).update({"is_block": 1})
+        db.session.flush()
+        db.session.commit()
         tokens_jti = red.get(user_id)
         tokens_jti = tokens_jti.decode() if tokens_jti else ''
         tokens_jti = tokens_jti.split(',')
+
         for jti in tokens_jti:
             red.delete(jti)
         red.set(user_id, '')
