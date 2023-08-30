@@ -5,6 +5,13 @@ from .enums import TIME_FORMAT_LOG
 from .extensions import logger
 import urllib.parse
 from flask import request
+from datetime import datetime
+
+
+def get_date_time():
+    current_time = datetime.now()
+    formatted_datetime = current_time.strftime("%d/%m/%Y %H:%M:%S")
+    return formatted_datetime
 
 
 def get_timestamp_now():
