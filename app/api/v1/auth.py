@@ -8,10 +8,9 @@ from flask import Blueprint, request
 from flask_jwt_extended import (create_access_token, create_refresh_token,
                                 get_jwt_identity, get_raw_jwt, jwt_refresh_token_required, jwt_required)
 
-from app.api.helper import Token
 from werkzeug.security import check_password_hash, generate_password_hash
 from app.models import User, Role, get_roles_key, UserGroupRole, Permission, RolePermission, get_permission_resource
-from app.api.helper import send_error, send_result
+from app.api.helper import send_error, send_result, RedisToken
 from app.extensions import jwt, db
 from app.utils import trim_dict, get_timestamp_now, data_preprocessing, logged_input
 from app.gateway import authorization_require
@@ -130,9 +129,9 @@ def login():
                                              user_claims={"force_change_password": user.force_change_password})
         list_permission = get_permission_resource(user.id)
         # Store the tokens in our store with a status of not currently revoked.
-        Token.add_token_to_database(access_token, user.id)
-        Token.add_token_to_database(refresh_token, user.id)
-        Token.add_list_permission(user.id, list_permission)
+        RedisToken.add_token_to_database(access_token, user.id)
+        RedisToken.add_token_to_database(refresh_token, user.id)
+        RedisToken.add_list_permission(user.id, list_permission)
 
         data: dict = UserSchema().dump(user)
         data.setdefault('access_token', access_token)
@@ -171,7 +170,7 @@ def refresh():
                                        user_claims={"force_change_password": user.force_change_password})
 
     # Store the tokens in our store with a status of not currently revoked.
-    Token.add_token_to_database(access_token, user_identity)
+    RedisToken.add_token_to_database(access_token, user_identity)
 
     data = {
         'access_token': access_token
@@ -192,7 +191,7 @@ def logout():
     try:
         code_lang = request.args.get('code_lang', 'EN')
         jti = get_raw_jwt()['jti']
-        Token.revoke_token(jti)  # revoke current token from database
+        RedisToken.revoke_token(jti)  # revoke current token from database
 
         return send_result(message="Logout successfully!", message_id=MESSAGE_ID,code_lang=code_lang)
     except Exception as ex:
@@ -247,7 +246,7 @@ def change_password():
         db.session.commit()
         message = 'CHANGE_DEFAULT_PASS_SUCCESS' if is_admin else 'CHANGE_DEFAULT_PASS_SUCCESS_USER_SITE'
         # revoke all token of current user  from database
-        Token.revoke_all_token(user_id)
+        RedisToken.revoke_all_token(user_id)
         return send_result(data=UserSchema().dump(user), message=message, message_id=MESSAGE_ID, code_lang=code_lang)
     except Exception as ex:
         db.session.rollback()
@@ -297,7 +296,7 @@ def check_if_token_is_revoked(decrypted_token):
     :param decrypted_token:
     :return:
     """
-    return Token.is_token_revoked(decrypted_token)
+    return RedisToken.is_token_revoked(decrypted_token)
 
 
 @jwt.expired_token_loader

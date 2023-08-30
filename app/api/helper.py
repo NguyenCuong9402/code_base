@@ -4,7 +4,7 @@ from flask_jwt_extended import decode_token
 from typing import List
 import pickle
 import json
-from app.models import BlockToken
+from app.models import Token
 from app.extensions import red
 from app.utils import get_timestamp_now
 from app.models import Message, db
@@ -128,14 +128,14 @@ def get_version(version: str) -> str:
     return version_text
 
 
-class Token:
+class RedisToken:
     @classmethod
     def add_token_to_database(cls, encoded_token: str, user_id: str):
         decoded_token = decode_token(encoded_token)
         jti = decoded_token['jti']
         time_expires = int(decoded_token['exp'])
-        add_token = BlockToken(id=str(uuid.uuid4()), user_id=user_id, jti=jti, encoded_token=encoded_token,
-                               expires=time_expires)
+        add_token = Token(id=str(uuid.uuid4()), user_id=user_id, jti=jti, encoded_token=encoded_token,
+                          expires=time_expires)
         db.session.add(add_token)
         db.session.flush()
         db.session.commit()
@@ -147,7 +147,7 @@ class Token:
 
     @classmethod
     def revoke_token(cls, jti):
-        block_token = BlockToken.query.filter(BlockToken.jti == jti).first()
+        block_token = Token.query.filter(Token.jti == jti).first()
         if block_token:
             block_token.is_block = 1
             db.session.commit()
@@ -169,7 +169,7 @@ class Token:
 
     @classmethod
     def revoke_all_token(cls, user_id: str):
-        db.session.query(BlockToken).filter(BlockToken.user_id == user_id).update({"is_block": 1})
+        db.session.query(Token).filter(Token.user_id == user_id).update({"is_block": 1})
         db.session.flush()
         db.session.commit()
         tokens_jti = red.get(user_id)

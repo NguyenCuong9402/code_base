@@ -7,7 +7,7 @@ from app.validator import GetRoleValidation, RoleSchema, DeleteRoleValidator, Up
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
 from app.models import Group, Role, Permission, RolePermission
-from app.api.helper import send_error, send_result, Token
+from app.api.helper import send_error, send_result, RedisToken
 from app.extensions import db, logger
 from app.utils import normalize_search_input, escape_wildcard
 from app.gateway import authorization_require
@@ -129,7 +129,7 @@ def remove_roles():
         db.session.flush()
         # Clear token
         for user_id in users_id:
-            Token.revoke_all_token(user_id)
+            RedisToken.revoke_all_token(user_id)
 
         db.session.commit()
         return send_result(message='Remove success!', code_lang=code_lang, message_id=MESSAGE_ID)
@@ -228,7 +228,7 @@ def update_role(role_id):
             users_id = get_users_id_by_group_and_role(groups_id=[], roles_id=[role.id])
             # Clear token
             for user_id in users_id:
-                Token.revoke_all_token(user_id)
+                RedisToken.revoke_all_token(user_id)
         for key in body_request.keys():
             role.__setattr__(key, body_request[key])
         role.last_modified_user = last_modified_user

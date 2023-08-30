@@ -7,8 +7,8 @@ from app.validator import UserSchema, GetUserValidation, UserValidation, ChangeU
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
 from sqlalchemy import or_
-from app.models import User, Group, UserGroupRole, Role, Permission, BlockToken
-from app.api.helper import send_error, send_result, Token
+from app.models import User, Group, UserGroupRole, Role, Permission, Token
+from app.api.helper import send_error, send_result, RedisToken
 from app.extensions import db, logger
 from app.utils import trim_dict, get_timestamp_now, data_preprocessing, normalize_search_input, escape_wildcard, \
     generate_password
@@ -208,7 +208,7 @@ def put_user(user_id):
             flag_change = True
         # Revoke all tokens
         if flag_change:
-            Token.revoke_all_token(user.id)
+            RedisToken.revoke_all_token(user.id)
             user.last_modified_user_id = get_jwt_identity()
             db.session.commit()
             return send_result(message='CHANGE_SUCCESS', message_id=MESSAGE_ID, code_lang=code_lang)
@@ -237,7 +237,7 @@ def delete_user():
         users_id = body_request.get("users_id")
         users = User.query.filter(User.id.in_(users_id), User.type != 3)
         for user in users.all():
-            Token.revoke_all_token(user.id)
+            RedisToken.revoke_all_token(user.id)
         users.delete()
         db.session.commit()
         return send_result(message='DELETE_SUCCESS', message_id=MESSAGE_ID, code_lang=code_lang)
@@ -250,7 +250,7 @@ def delete_user():
 @authorization_require()
 def delete_token():
     try:
-        BlockToken.query.filter(BlockToken.expires < get_timestamp_now()).delete()
+        Token.query.filter(Token.expires < get_timestamp_now()).delete()
         db.session.flush()
         db.session.commit()
         return send_result(message='success')

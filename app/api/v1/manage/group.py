@@ -6,7 +6,7 @@ from app.validator import GetGroupValidation, GroupSchema, DeleteGroupValidator,
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
 from app.models import Group, UserGroupRole, Role
-from app.api.helper import send_error, send_result, Token
+from app.api.helper import send_error, send_result, RedisToken
 from app.extensions import db, logger
 from app.utils import get_timestamp_now, normalize_search_input, escape_wildcard
 from app.gateway import authorization_require
@@ -115,7 +115,7 @@ def remove_groups():
 
         # clear token
         for user_id in users_id:
-            Token.revoke_all_token(user_id)
+            RedisToken.revoke_all_token(user_id)
         db.session.flush()
         db.session.commit()
         return send_result(message='Remove success!', message_id=MESSAGE_ID, code_lang=code_lang)
@@ -191,7 +191,7 @@ def update_group(group_id):
         if roles_id is not None and roles_id != group_roles_id:
             users = get_users_id_by_group_and_role(groups_id=[group_id], roles_id=[])
             for user in users:
-                Token.revoke_all_token(user)
+                RedisToken.revoke_all_token(user)
             group_roles.delete()
             roles = Role.query.filter(Role.key != ADMIN_ROLE, Role.id.in_(roles_id)).all()
             list_group_role = [UserGroupRole(id=str(uuid.uuid4()), group_id=group.id, role_id=role.id) for role in

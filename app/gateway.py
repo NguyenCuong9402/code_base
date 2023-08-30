@@ -3,7 +3,7 @@ from functools import wraps
 from flask import request
 from flask_jwt_extended import verify_jwt_in_request, get_jwt_claims, get_jwt_identity
 from app.extensions import red
-from app.models import BlockToken
+from app.models import Token
 from app.api.helper import send_error
 from app.utils import get_timestamp_now
 
@@ -22,9 +22,9 @@ def authorization_require():
         def decorator(*args, **kwargs):
             verify_jwt_in_request()
             encoded_token = request.headers.get('Authorization').split()[1]
-            block_token = BlockToken.query.filter(BlockToken.encoded_token == encoded_token,
-                                                  BlockToken.is_block != 0,
-                                                  BlockToken.expires > get_timestamp_now()).first()
+            block_token = Token.query.filter(Token.encoded_token == encoded_token,
+                                             Token.is_block != 0,
+                                             Token.expires > get_timestamp_now()).first()
             if block_token:
                 return send_error(message='Token has been blocked!')
 
