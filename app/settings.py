@@ -35,7 +35,7 @@ class DevConfig(Config):
 
     # mysql config
     SQLALCHEMY_DATABASE_URI = 'mysql://root:G-^rqEyhE6p=A#u*RU:V9J6-@192.168.1.17:3306/demo_stg'
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
+
 
 
 

@@ -12,9 +12,9 @@ services:
     ports:
       - "5012:5012"
     networks:
-      - source-code-base-net
+      - code-base-net
     volumes:
-      - ./:/source-code-base
+      - ./:/code-base
   redis:
     image: redis:6.2-alpine
     container_name: redis_base_stg
@@ -28,7 +28,7 @@ services:
     volumes:
       -  C:\redis\Redis:/usr/local/etc/redis
     networks:
-      - source-code-base-net
+      - code-base-net
 
 
   db-stg:
@@ -39,18 +39,18 @@ services:
       - --sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
     restart: always
     environment:
-
       MYSQL_ROOT_PASSWORD: G-^rqEyhE6p=A#u*RU:V9J6-
+      SQLALCHEMY_TRACK_MODIFICATIONS : True
     ports:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
       - ./init_db/init_mysql/init_files/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - source-code-base-net
+      - code-base-net
 networks:
-  source-code-base-net:
-    name: source-code-base-net
+  code-base-net:
+    name: code-base-net
 
 volumes:
   db_data:
