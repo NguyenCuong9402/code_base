@@ -144,8 +144,8 @@ class Message(db.Model):
     created_user_data = relationship('User', primaryjoin="and_(Message.created_user == User.id, User.type != 3)")
 
 
-class Token(db.Model):
-    __tablename__ = 'token'
+class BlockToken(db.Model):
+    __tablename__ = 'block_token'
 
     id = db.Column(db.String(50), primary_key=True)
     user_id = db.Column(db.String(50), nullable=False)
