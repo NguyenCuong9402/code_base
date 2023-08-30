@@ -111,6 +111,11 @@ def trim_dict(input_dict: dict) -> dict:
     return new_dict
 
 
+def convert_str_to_date_time(date_string: str):
+    date_format = "%Y-%m-%d"
+    dt = datetime.strptime(date_string, date_format)
+    return dt
+
 # Regex validate
 RE_ONLY_NUMBERS = r'^(\d+)$'
 RE_ONLY_CHARACTERS = r'^[a-zA-Z]+$'

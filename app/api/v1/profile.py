@@ -5,7 +5,7 @@ from flask_jwt_extended import get_jwt_identity
 from app.models import User
 from app.api.helper import send_error, send_result
 from app.extensions import db
-from app.utils import trim_dict
+from app.utils import trim_dict, convert_str_to_date_time
 from app.gateway import authorization_require
 
 api = Blueprint('profile', __name__)
@@ -44,7 +44,7 @@ def change_profile():
         if is_not_validate:
             return send_error(data=is_not_validate, message='INVALID_PASSWORD', code_lang=code_lang,
                               message_id=MESSAGE_ID)
-
+        json_req["birthday"] = convert_str_to_date_time(json_req["birthday"])
         for key in json_req.keys():
             user.__setattr__(key, json_req[key])
         db.session.flush()

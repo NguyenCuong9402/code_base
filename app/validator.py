@@ -138,7 +138,6 @@ class VerifyPasswordValidation(Schema):
 
 
 class UpdateProfileSchema(Schema):
-    email = fields.String(validate=[validate.Regexp(REGEX_EMAIL)])
     phone = fields.String()
     full_name = fields.String(validate=[validate.Regexp(REGEX_FULLNAME_VIETNAMESE)])
     address = fields.String()
