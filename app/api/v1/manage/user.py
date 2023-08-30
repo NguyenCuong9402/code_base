@@ -7,7 +7,7 @@ from app.validator import UserSchema, GetUserValidation, UserValidation, ChangeU
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
 from sqlalchemy import or_
-from app.models import User, Group, UserGroupRole, Role, Permission
+from app.models import User, Group, UserGroupRole, Role, Permission, BlockToken
 from app.api.helper import send_error, send_result, Token
 from app.extensions import db, logger
 from app.utils import trim_dict, get_timestamp_now, data_preprocessing, normalize_search_input, escape_wildcard, \
@@ -241,6 +241,19 @@ def delete_user():
         users.delete()
         db.session.commit()
         return send_result(message='DELETE_SUCCESS', message_id=MESSAGE_ID, code_lang=code_lang)
+    except Exception as e:
+        db.session.rollback()
+        return send_error(message=str(e))
+
+
+@api.route('/token-expires', methods=['DELETE'])
+@authorization_require()
+def delete_token():
+    try:
+        BlockToken.query.filter(BlockToken.expires < get_timestamp_now()).delete()
+        db.session.flush()
+        db.session.commit()
+        return send_result(message='success')
     except Exception as e:
         db.session.rollback()
         return send_error(message=str(e))

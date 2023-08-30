@@ -23,7 +23,7 @@ def upgrade():
     sa.Column('user_id', sa.String(length=50), nullable=False),
     sa.Column('jti', sa.String(length=50), nullable=False),
     sa.Column('expires', mysql.INTEGER(unsigned=True), nullable=False),
-    sa.Column('encoded_token', sa.String(length=50), nullable=False),
+    sa.Column('encoded_token', sa.Text(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
