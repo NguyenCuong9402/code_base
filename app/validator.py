@@ -269,6 +269,8 @@ class MessageSchema(Schema):
     code_lang = fields.String()
     created_date = fields.Integer()
     modified_date = fields.Integer()
+    created_user = fields.String()
+    last_modified_user = fields.String()
     created_user_data = fields.Nested(UserParentSchema)
     modified_user_data = fields.Nested(UserParentSchema)
 

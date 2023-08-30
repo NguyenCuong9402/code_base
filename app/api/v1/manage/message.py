@@ -15,6 +15,7 @@ from app.utils import trim_dict, get_timestamp_now, data_preprocessing, normaliz
     generate_password
 from app.gateway import authorization_require
 from marshmallow import ValidationError
+from app.pubsub_manager import publish_add_message, publish_remove_message, publish_update_message
 import uuid
 
 
@@ -108,8 +109,12 @@ def delete_message():
             }))
             return send_error(message='INVALID', data=err.messages)
         messages_id = body_request.get("messages_id")
-        Message.query.filter(Message.id.in_(messages_id)).delete()
+        messages = Message.query.filter(Message.id.in_(messages_id))
+        message_key = [f"message:{message.message_id}-{message.code_lang}" for message in messages.all()]
+        messages.delete()
+        db.session.flush()
         db.session.commit()
+        publish_remove_message(message_key)
         return send_result(message='DELETE_SUCCESS', message_id=MESSAGE_ID, code_lang=code_lang)
     except Exception as e:
         db.session.rollback()
@@ -142,11 +147,14 @@ def create_message():
         body_request['created_user'] = user_create_id
         body_request['last_modified_user'] = user_create_id
         new_message = Message(**body_request)
-
         db.session.add(new_message)
         db.session.flush()
         db.session.commit()
-
+        key = f"message:{new_message.message_id}-{new_message.code_lang}"
+        data = MessageSchema(only=["id", "message_id", "description", "show", "dynamic", "duration", "status",
+                                   "message", "object", "code_lang", "last_modified_user", "created_date",
+                                   "created_user", "modified_date"]).dump(new_message)
+        publish_add_message(key, data)
         return send_result(data=MessageSchema().dump(new_message), message='Success', code_lang=code_lang, message_id=MESSAGE_ID)
     except Exception as ex:
         db.session.rollback()
@@ -169,13 +177,18 @@ def update_message(message_id):
             return send_error(message='INVALID', data=err.messages)
 
         message = Message.query.filter(Message.id == message_id).first()
+        key = f"message:{message.message_id}-{message.code_lang}"
         if message is None:
-            return send_error(message='Not found role')
+            return send_error(message='Not found message')
 
         for key in body_request.keys():
             message.__setattr__(key, body_request[key])
         db.session.flush()
         db.session.commit()
+        data = MessageSchema(only=["id", "message_id", "description", "show", "dynamic", "duration", "status",
+                                   "message", "object", "code_lang", "last_modified_user", "created_date",
+                                   "created_user", "modified_date"]).dump(message)
+        publish_update_message(key, data)
         return send_result(code_lang=code_lang, message_id=MESSAGE_ID, message='Success')
     except Exception as ex:
         db.session.rollback()

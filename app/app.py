@@ -6,6 +6,9 @@ from flask_cors import CORS
 from .models import Message
 from .api.helper import send_result, send_error
 from .extensions import jwt, db, migrate, CONFIG, red
+from .pubsub_manager import PubSubManager
+
+pubsub_manager = PubSubManager()
 
 
 def create_app(config_object=CONFIG):
@@ -26,43 +29,6 @@ def create_app(config_object=CONFIG):
         add_messages_to_redis()
 
     return app
-
-    # pubsub = red.pubsub()
-    #
-    # @db.event.listens_for(Message, 'after_insert')
-    # @db.event.listens_for(Message, 'after_update')
-    # def receive_after_insert_update(mapper, connection, target):
-    #     # Chuyển đối tượng Message thành chuỗi JSON
-    #     message_json = json.dumps({
-    #         "id": target.id,
-    #         "message_id": target.message_id,
-    #         "description": target.description,
-    #         "show": target.show,
-    #         "duration": target.duration,
-    #         "status": target.status,
-    #         "message": target.message,
-    #         "dynamic": target.dynamic,
-    #         "object": target.object,
-    #         "code_lang": target.code_lang
-    #     })
-    #
-    #     # Lưu chuỗi JSON vào Redis với key là message_id và code_lang
-    #     key = f"message:{target.message_id}-{target.code_lang}"
-    #     red.set(key, message_json)
-    #
-    #     # Gửi thông điệp tới kênh để cập nhật realtime
-    #     pubsub.publish('message_update', key)
-    #
-    #
-    # @db.event.listens_for(Message, 'after_delete')
-    # def receive_after_delete(mapper, connection, target):
-    #     # Xóa key tương ứng trong Redis
-    #     key = f"message:{target.message_id}-{target.code_lang}"
-    #     red.delete(key)
-    #
-    #     # Gửi thông điệp tới kênh để cập nhật realtime
-    #     pubsub.publish('message_delete', key)
-
 
 
 def register_extensions(app):
