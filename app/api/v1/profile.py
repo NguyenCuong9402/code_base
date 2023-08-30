@@ -30,6 +30,8 @@ def change_profile():
         code_lang = request.args.get('code_lang', 'EN')
         user_id = get_jwt_identity()
         user = User.query.filter_by(id=user_id).first()
+        if user is None:
+            return send_error(message='NOT_FOUND_ERROR', code_lang=code_lang, message_id=MESSAGE_ID)
         try:
             json_req = request.get_json()
         except Exception as ex:
@@ -42,13 +44,13 @@ def change_profile():
         if is_not_validate:
             return send_error(data=is_not_validate, message='INVALID_PASSWORD', code_lang=code_lang,
                               message_id=MESSAGE_ID)
-        if user is None:
-            return send_error(message='NOT_FOUND_ERROR', code_lang=code_lang, message_id=MESSAGE_ID)
+
         for key in json_req.keys():
             user.__setattr__(key, json_req[key])
         db.session.flush()
         db.session.commit()
-
+        return send_result(data=UserSchema(only=['email', 'phone', 'full_name', 'address', 'birthday', 'avatar_url',
+                                                 'created_date']).dump(user), message='success')
     except Exception as ex:
         db.session.rollback()
         return send_error(message=str(ex))
