@@ -16,9 +16,9 @@ api = Blueprint('profile', __name__)
 @api.route('/send_email', methods=['POST'])
 def send_email():
     try:
-        msg = MessageMail('Send file Flask', sender='nguyenngoccuong.ubtlu@gmail.com',
-                          recipients=['cuong09042002@gmail.com'])
-        msg.body = 'This is a test email sent from Flask. send file'
+        msg = MessageMail('Nguyễn Ngọc Cương gửi mail!', sender='nguyenngoccuong.ubtlu@gmail.com',
+                          recipients=['cuong09042002@gmail.com', "trangtrinh06072002@gmail.com"])
+        msg.body = 'This is a test email sent from Flask and Send file'
 
         files = request.files.getlist('files')
         for file in files:
