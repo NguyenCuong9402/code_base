@@ -47,6 +47,7 @@ class DevConfig(Config):
     MAIL_USE_SSL = True
     MAIL_DEBUG = False
 
+    SECRET_KEY = 'socketio_key'
 
 
 

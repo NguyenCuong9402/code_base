@@ -5,7 +5,7 @@ from flask import Flask
 from flask_cors import CORS
 from .models import Message
 from .api.helper import send_result, send_error
-from .extensions import jwt, db, migrate, CONFIG, red, mail
+from .extensions import jwt, db, migrate, CONFIG, red, mail, socketio
 from .pubsub_manager import PubSubManager
 
 pubsub_manager = PubSubManager()
@@ -44,6 +44,7 @@ def register_extensions(app):
     migrate.init_app(app, db)
     red.init_app(app)
     mail.init_app(app)
+    socketio.init_app(app)
 
 
 def register_monitor(app):
