@@ -9,6 +9,7 @@ from app.extensions import red
 from app.utils import get_timestamp_now
 from app.models import Message, db
 
+
 def send_result(data: any = None, message_id: str = '', message: str = "OK", code: int = 200,
                 status: str = 'success', show: bool = False, duration: int = 0, code_lang :str = 'EN',
                 val_error: dict = {}, is_dynamic: bool = False):
@@ -105,7 +106,6 @@ def send_error(data: any = None, message_id: str = '', message: str = "Error", c
         message_dict['modified_date'] = message_obj['modified_date']
         message_dict['created_user'] = message_obj['created_user']
         message_dict['last_modified_user'] = message_obj['last_modified_user']
-
 
     res = {
         "code": code,
