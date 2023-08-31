@@ -1,12 +1,13 @@
 import json
 import redis
 from .api import v1 as api_v1
-from flask import Flask
+from flask import Flask, render_template
 from flask_cors import CORS
 from .models import Message
 from .api.helper import send_result, send_error
-from .extensions import jwt, db, migrate, CONFIG, red, mail
+from .extensions import jwt, db, migrate, CONFIG, red, mail, socketio
 from .pubsub_manager import PubSubManager
+from flask_socketio import emit
 
 pubsub_manager = PubSubManager()
 
@@ -28,6 +29,17 @@ def create_app(config_object=CONFIG):
     def setup_redis():
         add_messages_to_redis()
 
+    @app.route('/')
+    def index():
+        return render_template('index.html')
+
+    @socketio.on('connect')
+    def handle_connect():
+        print('Client connected')
+
+    @socketio.on('disconnect')
+    def handle_disconnect():
+        print('Client disconnected')
     return app
 
 
@@ -44,6 +56,7 @@ def register_extensions(app):
     migrate.init_app(app, db)
     red.init_app(app)
     mail.init_app(app)
+    socketio.init_app(app)
 
 
 def register_monitor(app):

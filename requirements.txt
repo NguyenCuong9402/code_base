@@ -40,3 +40,6 @@ redis==3.5.3
 Flask-And-Redis==1.0.0
 Flask-Mail==0.9.1
 flask-socketio == 5.3.5
+simple-websocket-server == 0.4.4
+eventlet==0.33.3
+gevent==23.7.0
