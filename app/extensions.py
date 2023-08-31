@@ -9,6 +9,7 @@ from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from .settings import DevConfig
 from apscheduler.schedulers.background import BackgroundScheduler
+from flask_mail import Mail
 
 CONFIG = DevConfig
 
@@ -19,6 +20,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 
 red = Redis()
+mail = Mail()
 
 os.makedirs("logs", exist_ok=True)
 app_log_handler = RotatingFileHandler('logs/app.log', maxBytes=1000000, backupCount=30, encoding="UTF-8")
