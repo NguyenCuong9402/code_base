@@ -35,12 +35,13 @@ class DevConfig(Config):
 
     # mysql config
     SQLALCHEMY_DATABASE_URI = 'mysql://root:G-^rqEyhE6p=A#u*RU:V9J6-@192.168.1.17:3306/demo_stg'
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
 
     # email config
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 465
     MAIL_USERNAME = 'nguyenngoccuong.ubtlu@gmail.com'
-    MAIL_PASSWORD = 'cuongdepzai'
+    MAIL_PASSWORD = 'gufxxahiyzmzmxrr'
     MAIL_DEFAULT_SENDER = 'nguyenngoccuong.ubtlu@gmail.com'
     MAIL_USE_TLS = False
     MAIL_USE_SSL = True
