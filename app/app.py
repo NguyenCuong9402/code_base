@@ -7,6 +7,7 @@ from .models import Message
 from .api.helper import send_result, send_error
 from .extensions import jwt, db, migrate, CONFIG, red, mail, socketio
 from .pubsub_manager import PubSubManager
+from flask_socketio import emit
 
 pubsub_manager = PubSubManager()
 
@@ -28,6 +29,10 @@ def create_app(config_object=CONFIG):
     def setup_redis():
         add_messages_to_redis()
 
+    @socketio.on('test_event')
+    def handle_test_event(data):
+        print("Received test_event:", data)
+        emit('test_response', {'message': 'Test event received'})
     return app
 
 
