@@ -57,6 +57,7 @@ def register():
         )
         db.session.add(new_user)
         db.session.flush()
+
         user_role = UserGroupRole(id=str(uuid.uuid4()), user_id=new_user.id, role_id=role.id)
         db.session.add(user_role)
         db.session.flush()

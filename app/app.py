@@ -1,11 +1,14 @@
 import json
+import uuid
+
 import redis
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from werkzeug.security import generate_password_hash
 
 from .api import v1 as api_v1
 from flask import Flask, render_template
 from flask_cors import CORS
-from .models import Message
+from .models import Message, User
 from .api.helper import send_result, send_error
 from .extensions import jwt, db, migrate, CONFIG, red, mail, socketio
 from .pubsub_manager import PubSubManager
@@ -30,6 +33,7 @@ def create_app(config_object=CONFIG):
     @app.before_first_request
     def setup_redis():
         add_messages_to_redis()
+        add_super_admin()
 
     @app.route('/')
     def index():
@@ -140,3 +144,24 @@ def add_messages_to_redis():
             "last_modified_user": message.last_modified_user
         }
         red.set(key, json.dumps(value))
+
+
+DEFAULT_DATA_ADMIN = {
+    "email": "cuong.boot.ai@gmail.com",
+    "phone": "0327241194",
+    "password": "admin@1234",
+    "full_name": "nguyen ngoc cuong",
+    "type": 3,
+    "is_active": 1, "status": 1
+}
+
+
+def add_super_admin():
+    user_count = User.query.count()
+    if user_count == 0:
+        DEFAULT_DATA_ADMIN["id"] = str(uuid.uuid4())
+        DEFAULT_DATA_ADMIN["password"] = generate_password_hash(DEFAULT_DATA_ADMIN["password"])
+        new_user = User(**DEFAULT_DATA_ADMIN)
+        db.session.add(new_user)
+        db.session.commit()
+
