@@ -40,6 +40,12 @@ def create_app(config_object=CONFIG):
     @socketio.on('disconnect')
     def handle_disconnect():
         print('Client disconnected')
+
+    @socketio.on('message')
+    def handle_message(message):
+        print('Received message:', message)
+        socketio.send(message)
+
     return app
 
 

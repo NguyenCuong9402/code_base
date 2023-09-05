@@ -43,3 +43,4 @@ flask-socketio == 5.3.5
 simple-websocket-server == 0.4.4
 eventlet==0.33.3
 gevent==23.7.0
+socketIo-client == 0.7.2
