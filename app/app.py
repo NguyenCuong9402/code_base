@@ -1,5 +1,7 @@
 import json
 import redis
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
 from .api import v1 as api_v1
 from flask import Flask, render_template
 from flask_cors import CORS
@@ -34,16 +36,22 @@ def create_app(config_object=CONFIG):
         return render_template('index.html')
 
     @socketio.on('connect')
+    @jwt_required
     def handle_connect():
-        print('Client connected')
+        current_user_id = get_jwt_identity()
+        print(current_user_id, 'Client connected')
 
     @socketio.on('disconnect')
+    @jwt_required
     def handle_disconnect():
-        print('Client disconnected')
+        current_user_id = get_jwt_identity()
+        print(current_user_id, ' disconnected')
 
     @socketio.on('message')
+    @jwt_required
     def handle_message(message):
-        print('Received message:', message)
+        current_user_id = get_jwt_identity()
+        print(current_user_id, ":", message)
         socketio.send(message)
 
     return app
