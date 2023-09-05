@@ -33,7 +33,6 @@ def create_app(config_object=CONFIG):
     @app.before_first_request
     def setup_redis():
         add_messages_to_redis()
-        add_super_admin()
 
     @app.route('/')
     def index():
@@ -144,24 +143,4 @@ def add_messages_to_redis():
             "last_modified_user": message.last_modified_user
         }
         red.set(key, json.dumps(value))
-
-
-DEFAULT_DATA_ADMIN = {
-    "email": "cuong.boot.ai@gmail.com",
-    "phone": "0327241194",
-    "password": "admin@1234",
-    "full_name": "nguyen ngoc cuong",
-    "type": 3,
-    "is_active": 1, "status": 1
-}
-
-
-def add_super_admin():
-    user_count = User.query.count()
-    if user_count == 0:
-        DEFAULT_DATA_ADMIN["id"] = str(uuid.uuid4())
-        DEFAULT_DATA_ADMIN["password"] = generate_password_hash(DEFAULT_DATA_ADMIN["password"])
-        new_user = User(**DEFAULT_DATA_ADMIN)
-        db.session.add(new_user)
-        db.session.commit()
 
