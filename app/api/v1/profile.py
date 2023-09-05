@@ -8,17 +8,20 @@ from app.extensions import db, mail
 from app.utils import trim_dict, convert_str_to_date_time
 from app.gateway import authorization_require
 from flask_mail import Message as MessageMail
-
+import json
 
 api = Blueprint('profile', __name__)
 
 
 @api.route('/send_email', methods=['POST'])
+@authorization_require()
 def send_email():
     try:
-        msg = MessageMail('Nguyễn Ngọc Cương gửi mail!', sender='nguyenngoccuong.ubtlu@gmail.com',
-                          recipients=['cuong09042002@gmail.com', "trangtrinh06072002@gmail.com"])
-        msg.body = 'This is a test email sent from Flask and Send file'
+        title = request.form.get('title', 'ADMIN SEND MAIL')
+        mails = json.loads(request.form.get('mails', []))
+        body = request.form.get('body', 'This is a test email sent from Flask and Send file')
+        msg = MessageMail(title, recipients=mails)
+        msg.body = body
 
         files = request.files.getlist('files')
         for file in files:

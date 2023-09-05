@@ -52,7 +52,7 @@ def create_app(config_object=CONFIG):
     def handle_message(message):
         current_user_id = get_jwt_identity()
         print(current_user_id, ":", message)
-        socketio.send(message)
+        socketio.send(f"{current_user_id}:{message}")
 
     return app
 
