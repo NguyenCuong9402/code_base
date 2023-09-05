@@ -75,7 +75,7 @@ class Worker:
         for index, row in df_group.iterrows():
             existing_group = Group.query.filter(Group.key == row['key'], Group.name == row['name']).first()
             if existing_group is None:
-                existing_group = Role(
+                existing_group = Group(
                     id=str(uuid.uuid4()),
                     key=row['key'],
                     name=row['name'],
