@@ -155,3 +155,12 @@ class Token(db.Model):
     is_block = db.Column(db.Boolean, default=0)
 
 
+class EmailTemplate(db.Model):
+    __tablename__ = 'email_template'
+
+    id = db.Column(db.String(50), primary_key=True)
+    name = db.Column(db.String(200))
+    body = db.Column(db.TEXT())
+    description = db.Column(db.String(200))
+    template_code = db.Column(db.String(200))
+
