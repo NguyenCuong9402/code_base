@@ -126,3 +126,10 @@ class Worker:
                     list_user_group_role.append(user_group)
                 db.session.bulk_save_objects(list_user_group_role)
         db.session.commit()
+
+
+if __name__ == '__main__':
+    print("=" * 10, f"Starting update rbac to the database on the uri: {CONFIG.SQLALCHEMY_DATABASE_URI}", "=" * 10)
+    worker = Worker()
+    worker.import_rbac()
+    print("=" * 50, "update rbac", "=" * 50)
