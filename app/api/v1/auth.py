@@ -108,7 +108,7 @@ def login():
 
         user = User.query.filter(User.email == email).first()
         if user is None or (password and not check_password_hash(user.password_hash, password)):
-            return send_error(message='Fail', message_id=MESSAGE_ID, code_lang=code_lang)
+            return send_error(message='Not found user')
         roles = get_roles_key(user.id)
         # Check permission login (from user/admin side?)
         is_authorized = False

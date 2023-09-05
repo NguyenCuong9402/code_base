@@ -2,9 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3bac0d7a-7462-40f5-98b4-dc5797c1368f" name="Changes" comment="oke">
-      <change afterPath="$PROJECT_DIR$/init_db/migrate_rbac/init_data_rbac.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/init_db/migrate_rbac/import_phan_quyen.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/init_db/migrate_rbac/import_phan_quyen.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/migrations/versions/52b76e10c997_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/migrations/versions/61b9acc7c60b_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/migrations/versions/b2e8207a530f_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/migrations/versions/fef0a436fa61_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/settings.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,7 +60,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "last_opened_file_path": "C:/code_base"
+    "last_opened_file_path": "C:/FIT-Back-End/fit-backend"
   }
 }]]></component>
   <component name="RunManager">
@@ -98,20 +100,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1693219953373</updated>
-    </task>
-    <task id="LOCAL-00014" summary="oke">
-      <created>1693294087422</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1693294087422</updated>
-    </task>
-    <task id="LOCAL-00015" summary="oke">
-      <created>1693294490105</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1693294490105</updated>
     </task>
     <task id="LOCAL-00016" summary="oke">
       <created>1693296942994</created>
@@ -442,7 +430,21 @@
       <option name="project" value="LOCAL" />
       <updated>1693901718039</updated>
     </task>
-    <option name="localTasksCounter" value="63" />
+    <task id="LOCAL-00063" summary="oke">
+      <created>1693904774560</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1693904774560</updated>
+    </task>
+    <task id="LOCAL-00064" summary="oke">
+      <created>1693904896733</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1693904896733</updated>
+    </task>
+    <option name="localTasksCounter" value="65" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
