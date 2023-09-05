@@ -58,10 +58,11 @@ def upload_file_message():
             list_add_message = []
             # Lặp qua từng hàng của DataFrame và thêm vào cơ sở dữ liệu
             for index, row in df.iterrows():
-                message = Message.query.filter(Message.code_lang == row['code_lang'], Message.id == row['id'])
+                message = Message.query.filter(Message.code_lang == row['code_lang'], Message.message_id == row['message_id'])
                 if message is None:
                     message = Message(
-                        id=row['id'],
+                        id=str(uuid.uuid4()),
+                        message_id=row['message_id'],
                         description=row['description'],
                         show=row['show'],
                         duration=row['duration'],

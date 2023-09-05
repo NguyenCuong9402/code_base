@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3bac0d7a-7462-40f5-98b4-dc5797c1368f" name="Changes" comment="oke">
+      <change afterPath="$PROJECT_DIR$/init_db/migrate_message/import_message.xlsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/init_db/migrate_message/init_message.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/api/v1/manage/import_file.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/v1/manage/import_file.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -118,13 +121,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1693219953373</updated>
-    </task>
-    <task id="LOCAL-00018" summary="oke">
-      <created>1693297854717</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1693297854717</updated>
     </task>
     <task id="LOCAL-00019" summary="oke">
       <created>1693298299261</created>
@@ -462,7 +458,14 @@
       <option name="project" value="LOCAL" />
       <updated>1693907674625</updated>
     </task>
-    <option name="localTasksCounter" value="67" />
+    <task id="LOCAL-00067" summary="oke">
+      <created>1693908671765</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1693908671765</updated>
+    </task>
+    <option name="localTasksCounter" value="68" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -580,13 +583,8 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/init_db/migrate_rbac/init_data_rbac.py</url>
-          <line>86</line>
-          <option name="timeStamp" value="54" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/init_db/migrate_rbac/init_data_rbac.py</url>
-          <line>81</line>
-          <option name="timeStamp" value="56" />
+          <line>85</line>
+          <option name="timeStamp" value="57" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -610,6 +608,9 @@
         <watch expression="json.loads(row['roles_id'])" />
         <watch expression="roles_id" />
         <watch expression="row['roles_id']" language="Python" />
+        <watch expression="json.loads(row['roles_id'])" />
+        <watch expression="row['roles_id']" />
+        <watch expression="json.loads(row['roles_id'])" />
       </configuration>
     </watches-manager>
   </component>
