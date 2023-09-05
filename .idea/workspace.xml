@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3bac0d7a-7462-40f5-98b4-dc5797c1368f" name="Changes" comment="oke">
-      <change afterPath="$PROJECT_DIR$/init_db/migrate_rbac/logs/app.log" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/init_db/migrate_rbac/logs/app_crawl.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/init_db/migrate_rbac/init_data_rbac.py" beforeDir="false" afterPath="$PROJECT_DIR$/init_db/migrate_rbac/init_data_rbac.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -121,13 +118,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1693219953373</updated>
-    </task>
-    <task id="LOCAL-00017" summary="oke">
-      <created>1693297781626</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1693297781626</updated>
     </task>
     <task id="LOCAL-00018" summary="oke">
       <created>1693297854717</created>
@@ -465,7 +455,14 @@
       <option name="project" value="LOCAL" />
       <updated>1693905084438</updated>
     </task>
-    <option name="localTasksCounter" value="66" />
+    <task id="LOCAL-00066" summary="oke">
+      <created>1693907674625</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1693907674625</updated>
+    </task>
+    <option name="localTasksCounter" value="67" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -578,18 +575,18 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/init_db/migrate_rbac/init_data_rbac.py</url>
-          <line>25</line>
-          <option name="timeStamp" value="49" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/init_db/migrate_rbac/init_data_rbac.py</url>
-          <line>27</line>
-          <option name="timeStamp" value="50" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/init_db/migrate_rbac/init_data_rbac.py</url>
           <line>133</line>
           <option name="timeStamp" value="53" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/init_db/migrate_rbac/init_data_rbac.py</url>
+          <line>86</line>
+          <option name="timeStamp" value="54" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/init_db/migrate_rbac/init_data_rbac.py</url>
+          <line>81</line>
+          <option name="timeStamp" value="56" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -609,6 +606,10 @@
         <watch expression="role_type" />
         <watch expression="new_key != key" />
         <watch expression="message_key" />
+        <watch expression="row['roles_id']" />
+        <watch expression="json.loads(row['roles_id'])" />
+        <watch expression="roles_id" />
+        <watch expression="row['roles_id']" language="Python" />
       </configuration>
     </watches-manager>
   </component>
