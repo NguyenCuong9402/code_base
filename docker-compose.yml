@@ -16,12 +16,16 @@ services:
     volumes:
       - ./:/code-base
   socketio:
-    image: tiangolo/uvicorn-gunicorn-fastapi:python3.8
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: always
     ports:
-      - "5012:5022"
+      - "5000:5000"  # Cổng riêng biệt cho Socket.io
     networks:
       - code-base-net
+    volumes:
+      - ./:/code-base
     depends_on:
       - app
   redis:
