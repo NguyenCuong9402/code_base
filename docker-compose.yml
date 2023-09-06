@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     environment:
-      ENV: ${ENV}
+      ENV: 'dev'
     command: gunicorn --workers=3 --threads=1 -b 0.0.0.0:5012 --preload --log-level=debug server:app
     ports:
       - "5012:5012"
@@ -16,16 +16,12 @@ services:
     volumes:
       - ./:/code-base
   socketio:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: tiangolo/uvicorn-gunicorn-fastapi:python3.8
     restart: always
     ports:
-      - "5012:5012"
+      - "5012:5022"
     networks:
       - code-base-net
-    volumes:
-      - ./:/code-base
     depends_on:
       - app
   redis:
@@ -33,9 +29,9 @@ services:
     container_name: redis_base_stg
     restart: always
     command: redis-server --save 20 1 --loglevel warning --requirepass cuong-boot-ai
-    environment:
-      REDIS_DB: 1
-      REDIS_PASSWORD: 'cuong-boot-ai'
+#    environment:
+#      REDIS_DB: 1
+#      REDIS_PASSWORD: 'cuong-boot-ai'
     ports:
       - "6379:6379"
     volumes:
