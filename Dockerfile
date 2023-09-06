@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:experimental
-FROM python:3.7
+FROM python:3.8
 # Add a /source-code-base volume
 VOLUME ["/code-base"]
 WORKDIR /code-base

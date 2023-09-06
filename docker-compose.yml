@@ -15,18 +15,31 @@ services:
       - code-base-net
     volumes:
       - ./:/code-base
+  socketio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "5012:5012"
+    networks:
+      - code-base-net
+    volumes:
+      - ./:/code-base
+    depends_on:
+      - app
   redis:
     image: redis:6.2-alpine
     container_name: redis_base_stg
     restart: always
-    command: ["redis-server", "/usr/local/etc/redis/redis.windows.conf"]
+    command: redis-server --save 20 1 --loglevel warning --requirepass cuong-boot-ai
     environment:
       REDIS_DB: 1
       REDIS_PASSWORD: 'cuong-boot-ai'
     ports:
       - "6379:6379"
     volumes:
-      -  C:\redis\Redis:/usr/local/etc/redis
+      - cache:/data
     networks:
       - code-base-net
 
@@ -54,3 +67,4 @@ networks:
 
 volumes:
   db_data:
+  cache:

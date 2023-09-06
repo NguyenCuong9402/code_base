@@ -11,7 +11,7 @@ Flask-Cors==3.0.10
 Jinja2==3.0.1
 Werkzeug==2.0.1
 itsdangerous==2.0.1
-greenlet==1.1.0
+greenlet==2.0.2
 colorama==0.4.4
 blinker==1.4
 six==1.16.0
@@ -42,5 +42,5 @@ Flask-Mail==0.9.1
 flask-socketio == 5.3.5
 simple-websocket-server == 0.4.4
 eventlet==0.33.3
-gevent==23.7.0
-socketIo-client == 0.7.2
+# gevent==23.7.0
+# socketIo-client == 0.7.2
