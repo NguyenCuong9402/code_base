@@ -150,6 +150,9 @@ def create_user():
         db.session.commit()
         data = UserSchema().dump(new_user)
         data['password'] = password
+        msg = MessageMail('Tài khoản web ABC của bạn!', recipients=[json_req['email']])
+        msg.body = f'Xin chào New Admin, password của là : {password}'
+        mail.send(msg)
         return send_result(data=data, message='Success', code_lang=code_lang, message_id=MESSAGE_ID)
     except Exception as e:
         db.session.rollback()
