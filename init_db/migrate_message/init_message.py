@@ -50,7 +50,7 @@ class Worker:
 
 
 if __name__ == '__main__':
-    print("=" * 10, f"Starting update rbac to the database on the uri: {CONFIG.SQLALCHEMY_DATABASE_URI}", "=" * 10)
+    print("=" * 10, f"Starting update message to the database on the uri: {CONFIG.SQLALCHEMY_DATABASE_URI}", "=" * 10)
     worker = Worker()
     worker.import_message()
     print("=" * 50, "update rbac", "=" * 50)
