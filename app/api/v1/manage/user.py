@@ -9,12 +9,13 @@ from flask_jwt_extended import get_jwt_identity
 from sqlalchemy import or_
 from app.models import User, Group, UserGroupRole, Role, Permission, Token
 from app.api.helper import send_error, send_result, RedisToken
-from app.extensions import db, logger
+from app.extensions import db, logger, mail
 from app.utils import trim_dict, get_timestamp_now, data_preprocessing, normalize_search_input, escape_wildcard, \
     generate_password
 from app.gateway import authorization_require
 from marshmallow import ValidationError
 import uuid
+from flask_mail import Message as MessageMail
 
 api = Blueprint('manage/user', __name__)
 
@@ -258,6 +259,72 @@ def delete_token():
         db.session.rollback()
         return send_error(message=str(e))
 
+
+@api.route('/send_email', methods=['POST'])
+@authorization_require()
+def send_email():
+    try:
+        title = request.form.get('title', 'ADMIN SEND MAIL')
+        mails = json.loads(request.form.get('mails', []))
+        body = request.form.get('body', 'This is a test email sent from Flask and Send file')
+        msg = MessageMail(title, recipients=mails)
+        html_content = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                .envelope {
+                    background-color: #F2F2F2;
+                    width: 300px;
+                    height: 200px;
+                    position: relative;
+                    margin: 0 auto;
+                    border-radius: 10px;
+                    transform: rotate(-10deg);
+                }
+
+                .envelope:before {
+                    content: "";
+                    position: absolute;
+                    width: 0;
+                    height: 0;
+                    border-left: 40px solid transparent;
+                    border-right: 40px solid transparent;
+                    border-bottom: 80px solid #8B4513;
+                    top: -60px;
+                    left: 30px;
+                }
+                .email-content {
+                    padding: 20px;
+                    font-family: Arial, sans-serif;
+                    font-size: 16px;
+                     color: red;
+                     text-align: center;
+                     vertical-align: middle;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="envelope">
+                <div class="email-content">
+                    <p>BODY</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        html_content = html_content.replace("BODY", body)
+        msg.html = html_content
+
+        files = request.files.getlist('files')
+        for file in files:
+            if file:
+                msg.attach(file.filename, 'application/pdf', file.read())
+
+        mail.send(msg)
+        return send_result(message='send email thành công')
+    except Exception as ex:
+        return send_error(message=str(ex))
 
 
 
