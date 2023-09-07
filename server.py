@@ -7,5 +7,6 @@ if __name__ == '__main__':
     python manage.py
     """
     # app.run(host='0.0.0.0', port=5012)
+    # socketio.run(app, host='0.0.0.0', port=5000)
     # socketio.run(app, debug=True)
     socketio.run(app, host="0.0.0.0", port=5012, debug=True, allow_unsafe_werkzeug=True)
