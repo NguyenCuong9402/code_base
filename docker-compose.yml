@@ -33,17 +33,12 @@ services:
     container_name: redis_base_stg
     restart: always
     command: redis-server --save 20 1 --loglevel warning --requirepass cuong-boot-ai
-#    environment:
-#      REDIS_DB: 1
-#      REDIS_PASSWORD: 'cuong-boot-ai'
     ports:
       - "6379:6379"
     volumes:
       - cache:/data
     networks:
       - code-base-net
-
-
   db-stg:
     image: mysql:8.0
     container_name: mysql_base_stg
