@@ -7,7 +7,8 @@ from .utils import get_date_time
 
 class PubSubManager:
     def __init__(self):
-        self.redis = red
+        self.redis = redis.Redis(host=CONFIG.REDIS_HOST, port=CONFIG.REDIS_PORT, db=CONFIG.REDIS_DB,
+                                 password=CONFIG.REDIS_PASSWORD)
         self.pubsub = self.redis.pubsub()
 
     def publish_add_message(self, date, key, data):
