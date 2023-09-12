@@ -6,7 +6,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash
 
 from .api import v1 as api_v1
-from flask import Flask, render_template
+from flask import Flask
 from flask_cors import CORS
 from .models import Message, User
 from .api.helper import send_result, send_error
