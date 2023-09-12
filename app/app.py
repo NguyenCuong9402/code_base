@@ -14,8 +14,6 @@ from .extensions import jwt, db, migrate, CONFIG, red, mail, socketio
 from .pubsub_manager import PubSubManager
 from flask_socketio import emit
 
-pubsub_manager = PubSubManager()
-
 
 def create_app(config_object=CONFIG):
     """
