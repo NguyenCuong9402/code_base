@@ -10,9 +10,8 @@ from flask import Flask, render_template
 from flask_cors import CORS
 from .models import Message, User
 from .api.helper import send_result, send_error
-from .extensions import jwt, db, migrate, CONFIG, red, mail, socketio
+from .extensions import jwt, db, migrate, CONFIG, red, mail
 from .pubsub_manager import PubSubManager
-from flask_socketio import emit
 
 pubsub_manager = PubSubManager()
 
@@ -73,7 +72,6 @@ def register_extensions(app):
     migrate.init_app(app, db)
     red.init_app(app)
     mail.init_app(app)
-    socketio.init_app(app)
 
 
 def register_monitor(app):

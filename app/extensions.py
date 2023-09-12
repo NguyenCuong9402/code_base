@@ -3,7 +3,6 @@ from logging.handlers import RotatingFileHandler
 import logging
 from flask_redis import Redis
 import redis
-from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
@@ -18,7 +17,6 @@ jwt = JWTManager()
 # init SQLAlchemy
 db = SQLAlchemy()
 migrate = Migrate()
-socketio = SocketIO()
 red = Redis()
 mail = Mail()
 
