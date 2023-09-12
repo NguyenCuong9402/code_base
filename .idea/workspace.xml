@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3bac0d7a-7462-40f5-98b4-dc5797c1368f" name="Changes" comment="oke" />
+    <list default="true" id="3bac0d7a-7462-40f5-98b4-dc5797c1368f" name="Changes" comment="oke">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/server.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -26,7 +29,7 @@
                 <list>
                   <RecentBranch>
                     <option name="branchName" value="socketio" />
-                    <option name="lastUsedInstant" value="1694510264" />
+                    <option name="lastUsedInstant" value="1694512335" />
                   </RecentBranch>
                   <RecentBranch>
                     <option name="branchName" value="master" />
@@ -49,14 +52,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "last_opened_file_path": "C:/FIT-Back-End"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/FIT-Back-End&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Python.server">
     <configuration name="init_data_rbac" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="code-base" />
@@ -102,6 +105,8 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.server" />
+        <item itemvalue="Python.init_data_rbac" />
         <item itemvalue="Python.server" />
         <item itemvalue="Python.init_data_rbac" />
         <item itemvalue="Python.server" />
