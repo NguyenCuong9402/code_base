@@ -15,6 +15,20 @@ services:
       - code-base-net
     volumes:
       - ./:/code-base
+  socketio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "5000:5000"
+    command: [ "python", "server.py" ]
+    networks:
+      - code-base-net
+    volumes:
+      - ./:/code-base
+    depends_on:
+      - app
   redis:
     image: redis:6.2-alpine
     container_name: redis_base_stg
