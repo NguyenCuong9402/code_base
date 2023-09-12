@@ -48,7 +48,7 @@ class DevConfig(Config):
     MAIL_DEBUG = False
 
 
-class PrdConfig(Config):
+class ProdConfig(Config):
     pass
 
 
