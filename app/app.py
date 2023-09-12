@@ -34,28 +34,28 @@ def create_app(config_object=CONFIG):
     def setup_redis():
         add_messages_to_redis()
 
-    @app.route('/')
-    def index():
-        return render_template('index.html')
-
-    @socketio.on('connect')
-    @jwt_required
-    def handle_connect():
-        current_user_id = get_jwt_identity()
-        print(current_user_id, 'Client connected')
-
-    @socketio.on('disconnect')
-    @jwt_required
-    def handle_disconnect():
-        current_user_id = get_jwt_identity()
-        print(current_user_id, ' disconnected')
-
-    @socketio.on('message')
-    @jwt_required
-    def handle_message(message):
-        current_user_id = get_jwt_identity()
-        print(current_user_id, ":", message)
-        socketio.send(f"{current_user_id}:{message}")
+    # @app.route('/')
+    # def index():
+    #     return render_template('index.html')
+    #
+    # @socketio.on('connect')
+    # @jwt_required
+    # def handle_connect():
+    #     current_user_id = get_jwt_identity()
+    #     print(current_user_id, 'Client connected')
+    #
+    # @socketio.on('disconnect')
+    # @jwt_required
+    # def handle_disconnect():
+    #     current_user_id = get_jwt_identity()
+    #     print(current_user_id, ' disconnected')
+    #
+    # @socketio.on('message')
+    # @jwt_required
+    # def handle_message(message):
+    #     current_user_id = get_jwt_identity()
+    #     print(current_user_id, ":", message)
+    #     socketio.send(f"{current_user_id}:{message}")
 
     return app
 
