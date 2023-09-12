@@ -48,3 +48,11 @@ class DevConfig(Config):
     MAIL_DEBUG = False
 
 
+class PrdConfig(Config):
+    pass
+
+
+class StgConfig(Config):
+    pass
+
+

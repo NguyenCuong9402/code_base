@@ -7,11 +7,11 @@ from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
-from .settings import DevConfig
+from .settings import DevConfig, PrdConfig, StgConfig
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask_mail import Mail
 
-CONFIG = DevConfig
+CONFIG = PrdConfig if os.environ.get('ENV') == 'prd' else StgConfig if os.environ.get('ENV') else DevConfig
 
 jwt = JWTManager()
 
