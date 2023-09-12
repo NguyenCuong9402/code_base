@@ -5,7 +5,7 @@ from typing import List
 import pickle
 import json
 from app.models import Token
-from app.extensions import red
+from app.extensions import red, CONFIG
 from app.utils import get_timestamp_now
 from app.models import Message, db
 
@@ -111,7 +111,7 @@ def send_error(data: any = None, message_id: str = '', message: str = "Error", c
         "code": code,
         "data": data,
         "message": message_dict,
-        # "version": get_version(CONFIG.VERSION)
+        "version": get_version(CONFIG.VERSION)
     }
 
     return jsonify(res), code
