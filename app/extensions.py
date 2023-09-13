@@ -10,7 +10,7 @@ from .settings import DevConfig, PrdConfig, StgConfig
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask_mail import Mail
 
-CONFIG = PrdConfig if os.environ.get('ENV') == 'prd' else StgConfig if os.environ.get('ENV') else DevConfig
+CONFIG = PrdConfig if os.environ.get('ENV') == 'prd' else StgConfig if os.environ.get('ENV') == 'stg' else DevConfig
 
 jwt = JWTManager()
 
