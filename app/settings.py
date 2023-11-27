@@ -27,15 +27,15 @@ class DevConfig(Config):
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
 
     # redis config
-    # REDIS_HOST = 'redis_base_stg'
-    REDIS_HOST = '127.0.0.1'
+    REDIS_HOST = 'redis_base_stg'
+    # REDIS_HOST = '127.0.0.1'
     REDIS_PORT = 6379
     REDIS_DB = 1
     REDIS_PASSWORD = 'cuong-boot-ai'
 
     # mysql config
-    SQLALCHEMY_DATABASE_URI = 'mysql://root:cuong942002@127.0.0.1:3306/demo'
-    # SQLALCHEMY_DATABASE_URI = 'mysql://root:cuong942002@db:3306/demo'
+    # SQLALCHEMY_DATABASE_URI = 'mysql://root:cuong942002@127.0.0.1:3306/demo'
+    SQLALCHEMY_DATABASE_URI = 'mysql://root:cuong942002@db:3306/demo'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
     # email config

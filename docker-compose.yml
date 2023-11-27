@@ -15,6 +15,19 @@ services:
       - code-base-net
     volumes:
       - ./:/code-base
+  web:
+    build:
+      context: .
+    environment:
+      FLASK_DEBUG: 1
+      FLASK_ENV: development
+      FLASK_APP: server.py
+    ports:
+      - '5000:5000'
+    entrypoint:
+      - flask
+      - run
+      - --host=0.0.0.0
   redis:
     image: redis:6.2-alpine
     container_name: redis_base_stg
