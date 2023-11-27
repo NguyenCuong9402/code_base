@@ -15,20 +15,6 @@ services:
       - code-base-net
     volumes:
       - ./:/code-base
-#  socketio:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    restart: always
-#    ports:
-#      - "5000:5000"
-#    command: [ "python", "server.py" ]
-#    networks:
-#      - code-base-net
-#    volumes:
-#      - ./:/code-base
-#    depends_on:
-#      - app
   redis:
     image: redis:6.2-alpine
     container_name: redis_base_stg
@@ -40,7 +26,7 @@ services:
       - cache:/data
     networks:
       - code-base-net
-  db-stg:
+  db:
     image: mysql:8.0
     container_name: mysql_base_stg
     command:
@@ -51,12 +37,12 @@ services:
       MYSQL_ROOT_PASSWORD: cuong942002
       SQLALCHEMY_TRACK_MODIFICATIONS : True
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
       - ./init_db/init_mysql/init_files/init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - code-base-net
+#    networks:
+#      - code-base-net
 networks:
   code-base-net:
     name: code-base-net

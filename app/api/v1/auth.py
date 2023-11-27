@@ -113,10 +113,10 @@ def login():
         # Check permission login (from user/admin side?)
         is_authorized = False
         if is_admin:
-            if 'permissionadminbasic' in roles:
+            if 'admin' in roles:
                 is_authorized = True
         else:
-            if 'permissionuserbasic' in roles:
+            if 'user' in roles:
                 is_authorized = True
         if not is_authorized:
             return send_error(message='YOU_DO_NOT_HAVE_PERMISSION', message_id=MESSAGE_ID, code_lang=code_lang)
