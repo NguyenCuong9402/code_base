@@ -15,19 +15,21 @@ services:
       - code-base-net
     volumes:
       - ./:/code-base
-  web:
+  socket:
     build:
       context: .
+      dockerfile: Dockerfile
     environment:
       FLASK_DEBUG: 1
       FLASK_ENV: development
       FLASK_APP: server.py
     ports:
       - '5000:5000'
-    entrypoint:
-      - flask
-      - run
-      - --host=0.0.0.0
+    command: gunicorn --workers=1 --threads=1 -b 0.0.0.0:5000 --preload --log-level=debug server:socket_app
+    networks:
+      - code-base-net
+    volumes:
+      - ./:/code-base-socket
   redis:
     image: redis:6.2-alpine
     container_name: redis_base_stg
