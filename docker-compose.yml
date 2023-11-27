@@ -15,20 +15,20 @@ services:
       - code-base-net
     volumes:
       - ./:/code-base
-  socketio:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: always
-    ports:
-      - "5000:5000"
-    command: [ "python", "server.py" ]
-    networks:
-      - code-base-net
-    volumes:
-      - ./:/code-base
-    depends_on:
-      - app
+#  socketio:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    restart: always
+#    ports:
+#      - "5000:5000"
+#    command: [ "python", "server.py" ]
+#    networks:
+#      - code-base-net
+#    volumes:
+#      - ./:/code-base
+#    depends_on:
+#      - app
   redis:
     image: redis:6.2-alpine
     container_name: redis_base_stg
@@ -48,7 +48,7 @@ services:
       - --sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: G-^rqEyhE6p=A#u*RU:V9J6-
+      MYSQL_ROOT_PASSWORD: cuong942002
       SQLALCHEMY_TRACK_MODIFICATIONS : True
     ports:
       - "3306:3306"
