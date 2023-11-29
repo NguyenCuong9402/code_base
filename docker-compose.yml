@@ -2,35 +2,30 @@ version: "3"
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: always
-    environment:
-      ENV: 'dev'
-    command: gunicorn --workers=3 --threads=1 -b 0.0.0.0:5012 --preload --log-level=debug server:app
+    build: .
     ports:
       - "5012:5012"
-    networks:
-      - code-base-net
+    expose:
+      - "5012"
     volumes:
-      - ./:/code-base
+      - ./files:/app/files  # Mount volumes if needed
+    command: [ "python", "server.py" ]
 
-  socket:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment:
-      FLASK_DEBUG: 1
-      FLASK_ENV: development
-      FLASK_APP: server.py
-    ports:
-      - '5000:5000'
-    command: gunicorn --workers=1 --threads=1 -b 0.0.0.0:5000 --preload --log-level=debug server:app
-    networks:
-      - code-base-net
-    volumes:
-      - ./:/code-base-socket
+#  socket:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    environment:
+#      FLASK_DEBUG: 1
+#      FLASK_ENV: development
+#      FLASK_APP: server.py
+#    ports:
+#      - '5000:5000'
+#    command: gunicorn --workers=1 --threads=1 -b 0.0.0.0:5000 --preload --log-level=debug server:app
+#    networks:
+#      - code-base-net
+#    volumes:
+#      - ./:/code-base-socket
   redis:
     image: redis:6.2-alpine
     container_name: redis_base_stg
