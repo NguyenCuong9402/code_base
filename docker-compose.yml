@@ -2,14 +2,19 @@ version: "3"
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      ENV: 'dev'
+    command: gunicorn --workers=3 --threads=1 -b 0.0.0.0:5012 --preload --log-level=debug server:app
     ports:
       - "5012:5012"
-    expose:
-      - "5012"
+    networks:
+      - code-base-net
     volumes:
-      - ./files:/app/files  # Mount volumes if needed
-    command: [ "python", "server.py" ]
+      - ./:/code-base
 
 #  socket:
 #    build:
