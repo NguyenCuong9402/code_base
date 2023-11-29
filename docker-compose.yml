@@ -37,7 +37,7 @@ services:
       MYSQL_ROOT_PASSWORD: G-^rqEyhE6p=A#u*RU:V9J6-
       SQLALCHEMY_TRACK_MODIFICATIONS : True
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
       - ./init_db/init_mysql/init_files/init.sql:/docker-entrypoint-initdb.d/init.sql
